@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>My Property Inspector</title>
+    <link rel="stylesheet" href="css/sdpi.css">
+</head>
+<body>
+    <div class="sdpi-wrapper" id="messageSettingsDiv">
+    </div>
+
+    <script src="js/common.js"></script>
+    <script>
+
+        /** Step 1: Subscribe to the 'connected' event
+         * and call your own initialization method.
+         * The connected - event is emitted, when StreamDeck
+         * has established a connection.
+         * The 'connected' event carries a JSON object containing
+         * necessary information about the connection and the
+         * inital data.
+         */
+        var uuid,
+            actionInfo,
+            inputDevices,
+            outputDevices,
+            settings,
+            ctx;
+
+        $SD.on("connected", (jsonObj) => connected(jsonObj));
+        $SD.on("didReceiveGlobalSettings", (jsonObj) => didReceiveGlobalSettings(jsonObj));
+
+        function connected(jsonObj)
+        {
+            uuid = jsonObj.uuid;
+            actionInfo = jsonObj.actionInfo.action;
+            ctx = jsonObj.actionInfo.context;
+            settings = jsonObj.actionInfo.payload.settings;
+
+            //create and set the HTML of the property inspector here
+            if (actionInfo == "uk.co.clarionmusic.midibutton.noteon")
+            {
+                document.getElementById("messageSettingsDiv").innerHTML = `
+                    <div class="sdpi-item" id="midiChannelDiv">
+                        <div class="sdpi-item-label">MIDI Channel</div>
+                            <input type="number" min="1" max="16" class="sdpi-item-value" id="midiChannel" value="" onchange="saveSettings()">
+                    </div>
+                    <div class="sdpi-item" id="midiNoteDiv">
+                        <div class="sdpi-item-label">MIDI Note</div>
+                            <input type="number" min="1" max="127" class="sdpi-item-value" id="midiNote" value="" onchange="saveSettings()">
+                    </div>
+                    <div class="sdpi-item" id="midiVelocityDiv">
+                        <div class="sdpi-item-label">MIDI Velocity</div>
+                            <input type="number" min="1" max="127" class="sdpi-item-value" id="midiVelocity" value="" onchange="saveSettings()">
+                    </div>
+                    <div type="checkbox" class="sdpi-item">
+                        <div class="sdpi-item-label">Send Note Off</div>
+                            <input class="sdpi-item-value" id="sendNoteOff" type="checkbox" onchange="saveSettings()">
+                            <label for="sendNoteOff"><span></span></label>
+                    </div>
+                    <details>
+                        <summary>Setup</summary>
+                        <div class="sdpi-item">
+                            <div class="sdpi-item-label">Port Name</div>
+                            <input class="sdpi-item-value" id="portName" value="Streamdeck MIDI" onchange="saveGlobalSettings()">
+                        </div>
+                    </details>`;
+            document.getElementById("midiChannel").value = settings.midiChannel;
+            document.getElementById("midiNote").value = settings.midiNote;
+            document.getElementById("midiVelocity").value = settings.midiVelocity;
+            document.getElementById("sendNoteOff").checked = settings.sendNoteOff;
+
+            }
+            else if (actionInfo == "uk.co.clarionmusic.midibutton.cc")
+            {
+                document.getElementById("messageSettingsDiv").innerHTML = `
+                    <div class="sdpi-item" id="midiChannelDiv">
+                        <div class="sdpi-item-label">MIDI Channel</div>
+                            <input type="number" min="1" max="16" class="sdpi-item-value" id="midiChannel" value="" onchange="saveSettings()">
+                    </div>
+                    <div class="sdpi-item" id="midiNoteDiv">
+                        <div class="sdpi-item-label">MIDI CC Number</div>
+                            <input type="number" min="1" max="127" class="sdpi-item-value" id="midiCC" value="" onchange="saveSettings()">
+                    </div>
+                    <div class="sdpi-item" id="midiVelocityDiv">
+                        <div class="sdpi-item-label">MIDI CC Value</div>
+                            <input type="number" min="1" max="127" class="sdpi-item-value" id="midiValue" value="" onchange="saveSettings()">
+                    </div>
+                    <details>
+                        <summary>Setup</summary>
+                        <div class="sdpi-item">
+                            <div class="sdpi-item-label">Port Name</div>
+                            <input class="sdpi-item-value" id="portName" value="Streamdeck MIDI" onchange="saveGlobalSettings()">
+                        </div>
+                    </details>`;
+            document.getElementById("midiChannel").value = settings.midiChannel;
+            document.getElementById("midiCC").value = settings.midiCC;
+            document.getElementById("midiValue").value = settings.midiValue;
+            }
+            else if (actionInfo == "uk.co.clarionmusic.midibutton.mmc")
+            {
+            document.getElementById("messageSettingsDiv").innerHTML = `
+                <div type="select" class="sdpi-item" id="sendMMCDiv">
+                    <div class="sdpi-item-label">MMC Message</div>
+                    <select class="sdpi-item-value" id="sendMMC" onchange="saveSettings()">
+                        <option value="1">Stop</option>
+                        <option value="2">Play</option>
+                        <option value="4">Fast Forward</option>
+                        <option value="5">Rewind</option>
+                        <option value="6">Record</option>
+                        <option value="9">Pause</option>
+                    </select>
+                </div>
+                <details>
+                    <summary>Setup</summary>
+                    <div class="sdpi-item">
+                        <div class="sdpi-item-label">Port Name</div>
+                        <input class="sdpi-item-value" id="portName" value="Streamdeck MIDI" onchange="saveGlobalSettings()">
+                    </div>
+                </details>
+            `;
+            document.getElementById("sendMMC").value = settings.sendMMC;
+            }
+            $SD.api.getGlobalSettings(uuid);
+        }
+        
+        function didReceiveGlobalSettings(jsonObj)
+        {
+            settings = jsonObj.payload.settings;
+            document.getElementById("portName").value = settings.portName;
+        }
+        
+        function didReceiveSettings(jsonObj)
+        {
+            
+        }
+        
+        function saveSettings()
+        {
+            //clear the current settings
+            for (var key in settings) delete settings[key];
+            //save settings here
+             if (actionInfo == "uk.co.clarionmusic.midibutton.noteon")
+             {
+                 settings.midiChannel = document.getElementById("midiChannel").value;
+                 settings.midiNote = document.getElementById("midiNote").value;
+                 settings.midiVelocity = document.getElementById("midiVelocity").value;
+                 settings.sendNoteOff = document.getElementById("sendNoteOff").checked;
+             }
+             else if (actionInfo == "uk.co.clarionmusic.midibutton.cc")
+             {
+                 settings.midiChannel = document.getElementById("midiChannel").value;
+                 settings.midiCC = document.getElementById("midiCC").value;
+                 settings.midiValue = document.getElementById("midiValue").value;
+             }
+             else if (actionInfo == "uk.co.clarionmusic.midibutton.mmc")
+             {
+                 settings.sendMMC = document.getElementById("sendMMC").value;
+                 //set the icon of the action to the correct image
+                 $SD.api.sendToPlugin(uuid, actionInfo, {msgMMC: settings.sendMMC});
+             }
+            $SD.api.setSettings(uuid, settings);
+        }
+        
+        function saveGlobalSettings()
+        {
+            //save settings here
+            settings.portName = document.getElementById("portName").value;
+            $SD.api.setGlobalSettings(uuid, settings);
+        }
+    
+        function midi(note)
+        {
+            if ((typeof note === 'number' || typeof note === 'string') && note > 0 && note < 128) return +note;
+            var p = Array.isArray(note) ? note : parse(note);
+            if (!p || p.length < 2) return null;
+            return p[0] * 7 + p[1] * 12 + 12;
+        }
+
+    </script>
+
+</body>
+</html>
