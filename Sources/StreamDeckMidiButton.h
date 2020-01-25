@@ -42,19 +42,22 @@ public:
 
 private:
     
-    void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const bool sendNoteOff);
+    void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int sendNoteOff);
+    void SendNoteOff(const int midiChannel, const int midiNote, const int midiVelocity);
+    void SendProgramChange(const int midiChannel, const int midiProgramChange);
     void SendCC(const int midiChannel, const int midiCC, const int midiValue);
     void SendMMC(const int sendMMC);
     
-    struct PortSettings {
-      std::string portName = DEFAULT_PORT_NAME;
+    struct GlobalSettings {
+        std::string portName = DEFAULT_PORT_NAME;
+        bool printDebug = false;
 
 //      bool isValid() const;
 //      json toJSON() const;
 //      static PortSettings fromJSON(const json&);
     };
     //PortSettings stored globally
-    PortSettings mPortSettings;
+    GlobalSettings mGlobalSettings;
     
     std::mutex mVisibleContextsMutex;
 	std::set<std::string> mVisibleContexts;

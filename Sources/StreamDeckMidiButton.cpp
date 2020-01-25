@@ -19,6 +19,9 @@ namespace {
 const char* SEND_NOTE_ON = "uk.co.clarionmusic.midibutton.noteon";
 const char* SEND_CC = "uk.co.clarionmusic.midibutton.cc";
 const char* SEND_MMC = "uk.co.clarionmusic.midibutton.mmc";
+const char* SEND_PROGRAM_CHANGE = "uk.co.clarionmusic.midibutton.programchange";
+const int PUSH_NOTE_OFF = 1;
+const int RELEASE_NOTE_OFF = 2;
 }// namespace
 
 
@@ -26,10 +29,10 @@ StreamDeckMidiButton::StreamDeckMidiButton()
 {
     //check whether we have a stored port name
     std::string portName;
-    if (mPortSettings.portName != DEFAULT_PORT_NAME)
+    if (mGlobalSettings.portName != DEFAULT_PORT_NAME)
     {
         //we have a stored portName already
-        portName = mPortSettings.portName;
+        portName = mGlobalSettings.portName;
     }
     else portName = DEFAULT_PORT_NAME;
     //RtMidiOut constructor
@@ -55,17 +58,18 @@ StreamDeckMidiButton::~StreamDeckMidiButton()
 
 void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-#ifdef DEBUG
-    mConnectionManager->LogMessage("StreamDeckMidiButton::KeyDownForAction()");
-    mConnectionManager->LogMessage(inPayload.dump().c_str());
-#endif
+    if (mGlobalSettings.printDebug)
+    {
+        mConnectionManager->LogMessage("StreamDeckMidiButton::KeyDownForAction()");
+        mConnectionManager->LogMessage(inPayload.dump().c_str());//REALLY USEFUL for debugging
+    }
+
     try
     {
         if (inAction == SEND_NOTE_ON)
         {
-#ifdef DEBUG
-            mConnectionManager->LogMessage(inAction);
-#endif
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+
             std::string mC = inPayload["settings"]["midiChannel"];
             std::stringstream MC(mC);
             int midiChannel = 0;
@@ -81,15 +85,18 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
             int midiVelocity = 0;
             MV >> midiVelocity;
             
-            bool sendNoteOff = inPayload["settings"]["sendNoteOff"];
+            std::string mNO = inPayload["settings"]["noteOffParams"];
+            std::stringstream MNO(mNO);
+            int noteOffParams = 0;
+            MNO >> noteOffParams;
             
-            SendNoteOn(midiChannel, midiNote, midiVelocity, sendNoteOff);
+            mConnectionManager->LogMessage(std::to_string(noteOffParams));
+            //bool sendNoteOff = inPayload["settings"]["sendNoteOff"];
+            SendNoteOn(midiChannel, midiNote, midiVelocity, noteOffParams);
         }
         else if (inAction == SEND_CC)
         {
-#ifdef DEBUG
-            mConnectionManager->LogMessage(inAction);
-#endif
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
         
             std::string mC = inPayload["settings"]["midiChannel"];
             std::stringstream MC(mC);
@@ -108,11 +115,26 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
             
             SendCC(midiChannel, midiCC, midiValue);
         }
+        else if (inAction == SEND_PROGRAM_CHANGE)
+        {
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+        
+            std::string mC = inPayload["settings"]["midiChannel"];
+            std::stringstream MC(mC);
+            int midiChannel = 0;
+            MC >> midiChannel;
+            
+            std::string mPC = inPayload["settings"]["midiProgramChange"];
+            std::stringstream MPC(mPC);
+            int midiProgramChange = 0;
+            MPC >> midiProgramChange;
+            
+            SendProgramChange(midiChannel, midiProgramChange);
+        }
         else if (inAction == SEND_MMC)
         {
-#ifdef DEBUG
-            mConnectionManager->LogMessage(inAction);
-#endif
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+            
             //send an MMC message here
             std::string mMMC = inPayload["settings"]["sendMMC"];
             std::stringstream MMMC(mMMC);
@@ -124,9 +146,7 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
         else
         {
             //something has gone wrong
-#ifdef DEBUG
-            mConnectionManager->LogMessage("Something's gone wrong...");
-#endif
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Something's gone wrong...");
         }
     }
     catch (std::exception e)
@@ -137,10 +157,45 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
 
 void StreamDeckMidiButton::KeyUpForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-	// Nothing to do
-#ifdef DEBUG
-    mConnectionManager->LogMessage("StreamDeckMidiButton::KeyUpForAction()");
-#endif
+    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::KeyUpForAction()");
+
+    try
+    {
+        if (inAction == SEND_NOTE_ON)
+        {
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+
+            std::string mNO = inPayload["settings"]["noteOffParams"];
+            std::stringstream MNO(mNO);
+            int noteOffParams = 0;
+            MNO >> noteOffParams;
+            
+            if (noteOffParams == 2)
+            {
+                std::string mC = inPayload["settings"]["midiChannel"];
+                std::stringstream MC(mC);
+                int midiChannel = 0;
+                MC >> midiChannel;
+                
+                std::string mN = inPayload["settings"]["midiNote"];
+                std::stringstream MN(mN);
+                int midiNote = 0;
+                MN >> midiNote;
+
+                std::string mV = inPayload["settings"]["midiVelocity"];
+                std::stringstream MV(mV);
+                int midiVelocity = 0;
+                MV >> midiVelocity;
+
+                SendNoteOff(midiChannel, midiNote, midiVelocity);
+            }
+        }
+        else if (inAction != SEND_NOTE_ON) return;
+    }
+    catch (std::exception e)
+    {
+        mConnectionManager->LogMessage(e.what());
+    }
 }
 
 void StreamDeckMidiButton::WillAppearForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
@@ -171,28 +226,36 @@ void StreamDeckMidiButton::DeviceDidDisconnect(const std::string& inDeviceID)
 
 void StreamDeckMidiButton::SendToPlugin(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-#ifdef DEBUG
-    mConnectionManager->LogMessage("SendToPlugin() callback");
-    mConnectionManager->LogMessage(inPayload.dump().c_str());
-#endif
+    if (mGlobalSettings.printDebug)
+    {
+        mConnectionManager->LogMessage("SendToPlugin() callback");
+        mConnectionManager->LogMessage(inPayload.dump().c_str());
+    }
+    
     if (inAction != SEND_MMC) return;
     SetActionIcon(inAction, inContext, inPayload, inDeviceID);
 }
 
 void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
 {
-#ifdef DEBUG
-    mConnectionManager->LogMessage("StreamDeckMidiButton::SetGlobalSettings()");
-    mConnectionManager->LogMessage(inPayload.dump().c_str());
-#endif
+    //check to see whether the DEBUG flag is set
+    mGlobalSettings.printDebug = inPayload["settings"]["setDebug"];
+    
+    if (mGlobalSettings.printDebug)
+    {
+        mConnectionManager->LogMessage("Successfully set the printDebug flag");
+        mConnectionManager->LogMessage(inPayload.dump().c_str());
+    }
+
     //need to check that the midi port is a valid name - no special characters etc.
     //first, check that the portName actually has changed, to avoid unnecessarily re-opening the port
     //TODO
     std::string portName = inPayload["settings"]["portName"];
 
-#ifdef DEBUG
-    mConnectionManager->LogMessage(portName);
-#endif
+    if (mGlobalSettings.printDebug)
+    {
+        mConnectionManager->LogMessage(portName);
+    }
     
     //reinitialise the midi port here with the correct name
     if (midiOut != nullptr)
@@ -217,12 +280,13 @@ void StreamDeckMidiButton::DidReceiveSettings(const std::string& inAction, const
     //nothing to do here
 }
 
-void StreamDeckMidiButton::SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const bool sendNoteOff)
+void StreamDeckMidiButton::SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int noteOffParams)
 {
-#ifdef DEBUG
-    mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOn()");
-#endif
-    
+    if (mGlobalSettings.printDebug)
+    {
+        mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOn()");
+    }
+
     //Note On message
     std::vector<unsigned char> midiMessage;
     midiMessage.push_back(143 + midiChannel);
@@ -230,21 +294,42 @@ void StreamDeckMidiButton::SendNoteOn(const int midiChannel, const int midiNote,
     midiMessage.push_back(midiVelocity);
     midiOut->sendMessage(&midiMessage);
 
-    if (sendNoteOff)
+    switch (noteOffParams)
     {
-        //Note Off message
-        midiMessage[0] = (127 + midiChannel);
-        midiMessage[1] = (midiNote);
-        midiMessage[2] = (midiVelocity);
-        midiOut->sendMessage(&midiMessage);
-    }    
+        case 0: {//no note off message
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("no note off message");
+            break;
+        }
+        case PUSH_NOTE_OFF: {//1: {//send note off message immediately
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("send note off immediately");
+            SendNoteOff(midiChannel, midiNote, midiVelocity);
+            break;
+        }
+        case RELEASE_NOTE_OFF: {//2: {//send note off on KeyUp
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("no note off message");
+            break;
+        }
+        default: {
+            break;
+        }
+    }
+}
+
+void StreamDeckMidiButton::SendNoteOff(const int midiChannel, const int midiNote, const int midiVelocity)
+{
+    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOff()");
+    
+    //Note Off message
+    std::vector<unsigned char> midiMessage;
+    midiMessage.push_back(127 + midiChannel);
+    midiMessage.push_back(midiNote);
+    midiMessage.push_back(midiVelocity);
+    midiOut->sendMessage(&midiMessage);
 }
 
 void StreamDeckMidiButton::SendCC(const int midiChannel, const int midiCC, const int midiValue)
 {
-#ifdef DEBUG
-    mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOn()");
-#endif
+    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendCC()");
     
     //midi CC message
     std::vector<unsigned char> midiMessage;
@@ -256,9 +341,7 @@ void StreamDeckMidiButton::SendCC(const int midiChannel, const int midiCC, const
 
 void StreamDeckMidiButton::SendMMC(const int sendMMC)
 {
-#ifdef DEBUG
-    mConnectionManager->LogMessage("StreamDeckMidiButton::SendMMC()");
-#endif
+    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendMMC()");
     
     //Note On message
     std::vector<unsigned char> midiMessage;
@@ -269,11 +352,24 @@ void StreamDeckMidiButton::SendMMC(const int sendMMC)
     midiMessage.push_back(sendMMC); //send the MMC command
     midiMessage.push_back(247); //F7 - message end
     midiOut->sendMessage(&midiMessage);
+    
+}
+
+void StreamDeckMidiButton::SendProgramChange(const int midiChannel, const int midiProgramChange)
+{
+    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendProgramChange()");
+    
+    //midi CC message
+    std::vector<unsigned char> midiMessage;
+    midiMessage.push_back(191 + midiChannel);
+    midiMessage.push_back(midiProgramChange);
+    midiOut->sendMessage(&midiMessage);
 
 }
 
 void StreamDeckMidiButton::SetActionIcon(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
+    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SetActionIcon()");
     //get the MMC message
     try
     {

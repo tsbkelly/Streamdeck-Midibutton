@@ -18,33 +18,21 @@
 		FA8731A82152302900B8F323 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA8731A72152302900B8F323 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		FABD3D162151193300D30B0C /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 0;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
-		B3741A4C23D700D6005EE7B9 /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
-		B3741A4D23D700D6005EE7B9 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
-		B3741A4E23D700D6005EE7B9 /* defaultImage@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "defaultImage@2x.png"; sourceTree = "<group>"; };
-		B3741A4F23D700D6005EE7B9 /* pluginIcon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = pluginIcon.png; sourceTree = "<group>"; };
-		B3741A5023D700D6005EE7B9 /* midi_note.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midi_note.png; sourceTree = "<group>"; };
-		B3741A5123D700D6005EE7B9 /* defaultImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = defaultImage.png; sourceTree = "<group>"; };
-		B3741A5223D700D6005EE7B9 /* en.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
-		B3741A5323D700D6005EE7B9 /* sdpi.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
-		B3741A5423D700D6005EE7B9 /* icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon@2x.png"; sourceTree = "<group>"; };
-		B3741A5523D700D6005EE7B9 /* pluginIcon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "pluginIcon@2x.png"; sourceTree = "<group>"; };
-		B3741A5623D700D6005EE7B9 /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
-		B3741A5723D700D6005EE7B9 /* common.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
-		B3741A5823D700D6005EE7B9 /* midi_mmc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midi_mmc.png; sourceTree = "<group>"; };
-		B3741A5923D700D6005EE7B9 /* midibutton */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = midibutton; sourceTree = "<group>"; };
+		B32D7B5823DAFB8E0096EC91 /* midibuttonmmc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonmmc@2x.png"; sourceTree = "<group>"; };
+		B32D7B5923DAFB8E0096EC91 /* midibuttonmmc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonmmc.png; sourceTree = "<group>"; };
+		B32D7B5A23DAFB8E0096EC91 /* midibuttoncc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttoncc@2x.png"; sourceTree = "<group>"; };
+		B32D7B5B23DAFB8E0096EC91 /* category-midibutton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton.png"; sourceTree = "<group>"; };
+		B32D7B5C23DAFB8E0096EC91 /* en.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
+		B32D7B5D23DAFB8E0096EC91 /* midibuttoncc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttoncc.png; sourceTree = "<group>"; };
+		B32D7B5E23DAFB8E0096EC91 /* midibuttonnote.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonnote.png; sourceTree = "<group>"; };
+		B32D7B5F23DAFB8E0096EC91 /* midibuttonnote@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonnote@2x.png"; sourceTree = "<group>"; };
+		B32D7B6023DAFB8E0096EC91 /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		B32D7B6123DAFB8E0096EC91 /* category-midibutton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton@2x.png"; sourceTree = "<group>"; };
+		B32D7B6223DAFB8E0096EC91 /* midibutton */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = midibutton; sourceTree = "<group>"; };
+		B32D7B6423DAFB8E0096EC91 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		B32D7B6623DAFB8E0096EC91 /* sdpi.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
+		B32D7B6823DAFB8E0096EC91 /* common.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
 		B38F464F23C4BE56002CC72A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../RtMidi.h; sourceTree = "<group>"; };
 		B38F465023C4BE56002CC72A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../RtMidi.cpp; sourceTree = "<group>"; };
 		B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
@@ -80,26 +68,50 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B3741A4B23D700D6005EE7B9 /* co.uk.clarionmusic.midibutton.sdPlugin */ = {
+		B32D7B5723DAFB8E0096EC91 /* co.uk.clarionmusic.midibutton.sdPlugin */ = {
 			isa = PBXGroup;
 			children = (
-				B3741A4C23D700D6005EE7B9 /* icon.png */,
-				B3741A4D23D700D6005EE7B9 /* index.html */,
-				B3741A4E23D700D6005EE7B9 /* defaultImage@2x.png */,
-				B3741A4F23D700D6005EE7B9 /* pluginIcon.png */,
-				B3741A5023D700D6005EE7B9 /* midi_note.png */,
-				B3741A5123D700D6005EE7B9 /* defaultImage.png */,
-				B3741A5223D700D6005EE7B9 /* en.json */,
-				B3741A5323D700D6005EE7B9 /* sdpi.css */,
-				B3741A5423D700D6005EE7B9 /* icon@2x.png */,
-				B3741A5523D700D6005EE7B9 /* pluginIcon@2x.png */,
-				B3741A5623D700D6005EE7B9 /* manifest.json */,
-				B3741A5723D700D6005EE7B9 /* common.js */,
-				B3741A5823D700D6005EE7B9 /* midi_mmc.png */,
-				B3741A5923D700D6005EE7B9 /* midibutton */,
+				B32D7B5823DAFB8E0096EC91 /* midibuttonmmc@2x.png */,
+				B32D7B5923DAFB8E0096EC91 /* midibuttonmmc.png */,
+				B32D7B5A23DAFB8E0096EC91 /* midibuttoncc@2x.png */,
+				B32D7B5B23DAFB8E0096EC91 /* category-midibutton.png */,
+				B32D7B5C23DAFB8E0096EC91 /* en.json */,
+				B32D7B5D23DAFB8E0096EC91 /* midibuttoncc.png */,
+				B32D7B5E23DAFB8E0096EC91 /* midibuttonnote.png */,
+				B32D7B5F23DAFB8E0096EC91 /* midibuttonnote@2x.png */,
+				B32D7B6023DAFB8E0096EC91 /* manifest.json */,
+				B32D7B6123DAFB8E0096EC91 /* category-midibutton@2x.png */,
+				B32D7B6223DAFB8E0096EC91 /* midibutton */,
+				B32D7B6323DAFB8E0096EC91 /* propertyinspector */,
 			);
 			name = co.uk.clarionmusic.midibutton.sdPlugin;
 			path = ../../co.uk.clarionmusic.midibutton.sdPlugin;
+			sourceTree = "<group>";
+		};
+		B32D7B6323DAFB8E0096EC91 /* propertyinspector */ = {
+			isa = PBXGroup;
+			children = (
+				B32D7B6423DAFB8E0096EC91 /* index.html */,
+				B32D7B6523DAFB8E0096EC91 /* css */,
+				B32D7B6723DAFB8E0096EC91 /* js */,
+			);
+			path = propertyinspector;
+			sourceTree = "<group>";
+		};
+		B32D7B6523DAFB8E0096EC91 /* css */ = {
+			isa = PBXGroup;
+			children = (
+				B32D7B6623DAFB8E0096EC91 /* sdpi.css */,
+			);
+			path = css;
+			sourceTree = "<group>";
+		};
+		B32D7B6723DAFB8E0096EC91 /* js */ = {
+			isa = PBXGroup;
+			children = (
+				B32D7B6823DAFB8E0096EC91 /* common.js */,
+			);
+			path = js;
 			sourceTree = "<group>";
 		};
 		FA8731A62152302900B8F323 /* Frameworks */ = {
@@ -115,7 +127,7 @@
 		FABD3D0F2151193300D30B0C = {
 			isa = PBXGroup;
 			children = (
-				B3741A4B23D700D6005EE7B9 /* co.uk.clarionmusic.midibutton.sdPlugin */,
+				B32D7B5723DAFB8E0096EC91 /* co.uk.clarionmusic.midibutton.sdPlugin */,
 				FAF9B00721511B61007E00F8 /* pch.h */,
 				FA87319D2151378300B8F323 /* StreamDeckMidiButton.h */,
 				FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */,
@@ -162,7 +174,6 @@
 			buildPhases = (
 				FABD3D142151193300D30B0C /* Sources */,
 				FABD3D152151193300D30B0C /* Frameworks */,
-				FABD3D162151193300D30B0C /* CopyFiles */,
 			);
 			buildRules = (
 			);

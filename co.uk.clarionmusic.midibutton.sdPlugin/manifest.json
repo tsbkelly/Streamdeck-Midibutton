@@ -29,6 +29,20 @@
             "UUID": "uk.co.clarionmusic.midibutton.cc"
         },
         {
+            "Icon": "midibuttoncc",
+            "Name": "Program Change",
+            "States": [
+                {
+                    "Image": "midibuttoncc",
+                    "TitleAlignment": "middle",
+                    "FontSize": "17"
+                }
+            ],
+            "SupportedInMultiActions": false,
+            "Tooltip": "Send a MIDI Program Change message",
+            "UUID": "uk.co.clarionmusic.midibutton.programchange"
+        },
+        {
             "Icon": "midibuttonmmc",
             "Name": "MMC",
             "States": [
