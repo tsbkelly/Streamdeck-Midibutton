@@ -65,7 +65,7 @@
                     </div>
                     <div class="sdpi-item" id="midiNoteDiv">
                         <div class="sdpi-item-label">MIDI Note</div>
-                            <input type="number" min="1" max="127" class="sdpi-item-value" id="midiNote" value="" onchange="saveSettings()">
+                            <input type="number" min="0" max="127" class="sdpi-item-value" id="midiNote" value="" onchange="saveSettings()">
                     </div>
                     <div class="sdpi-item" id="midiVelocityDiv">
                         <div class="sdpi-item-label">MIDI Velocity</div>
@@ -77,6 +77,7 @@
                             <option value="0">No Note Off</option>
                             <option value="1">On Push</option>
                             <option value="2">On Release</option>
+                            <option value="3">Toggle</option>
                         </select>
                     </div>
                     `;
@@ -287,9 +288,9 @@
             else if (actionInfo == "uk.co.clarionmusic.midibutton.mmc")
             {
                 document.getElementById("messageSettingsDiv").innerHTML = `
-                    <div type="select" class="sdpi-item" id="sendMMCDiv">
+                    <div type="select" class="sdpi-item" id="midiMMCDiv">
                         <div class="sdpi-item-label">MMC Message</div>
-                        <select class="sdpi-item-value" id="sendMMC" onchange="saveSettings()">
+                        <select class="sdpi-item-value" id="midiMMC" onchange="saveSettings()">
                             <option value="1">Stop</option>
                             <option value="2">Play</option>
                             <option value="4">Fast Forward</option>
@@ -299,38 +300,87 @@
                         </select>
                     </div>
                 `;
-            document.getElementById("sendMMC").value = settings.sendMMC || 1;
+                document.getElementById("midiMMC").value = settings.midiMMC || 1;
             }
             document.getElementById("messageSettingsDiv").insertAdjacentHTML('beforeend', `
             <details>
                 <summary>Setup</summary>
-                <div class="sdpi-item">
-                    <div class="sdpi-item-label">Port Name</div>
+                <div type="checkbox" class="sdpi-item" id="options">
+                    <div class="sdpi-item-label">Options</div>
+                    <div class="sdpi-item-value min100">
+                        <div class="sdpi-item-child">
+                            <input class="sdpi-item-value" id="printDebug" type="checkbox" onchange="saveGlobalSettings()">
+                            <label for="printDebug"><span></span>Debug</label>
+                        </div>
+                        <div class="sdpi-item-child">
+                            <input class="sdpi-item-value" id="useVirtualPort" type="checkbox" onchange="saveGlobalSettings()">
+                            <label for="useVirtualPort"><span></span>Use Virtual Port</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="sdpi-item" id="virtualPortName">
+                    <div class="sdpi-item-label">Virtual Port Name</div>
                     <input class="sdpi-item-value" id="portName" value="Streamdeck MIDI" onchange="saveGlobalSettings()">
                 </div>
-                <div type="checkbox" class="sdpi-item">
-                    <div class="sdpi-item-label">Debug</div>
-                    <input class="sdpi-item-value" id="setDebug" type="checkbox" onchange="saveGlobalSettings()">
-                    <label for="setDebug"><span></span></label>
+                <div type="select" class="sdpi-item" id="inPortList">
+                    <div class="sdpi-item-label">Input Port</div>
+                    <select class="sdpi-item-value select" id="inPortListSelector" onchange="saveGlobalSettings()">
+                    </select>
                 </div>
-
+                <div type="select" class="sdpi-item" id="outPortList">
+                    <div class="sdpi-item-label">Output Port</div>
+                    <select class="sdpi-item-value select" id="outPortListSelector" onchange="saveGlobalSettings()">
+                    </select>
+                </div>
             </details>`);
-
+            $SD.api.sendToPlugin(uuid, actionInfo, {event: "getMidiPorts"});
             $SD.api.getGlobalSettings(uuid);
+            document.getElementById("virtualPortName").style.display = document.getElementById("useVirtualPort").checked ? "" : "none";
         }
         
         function didReceiveGlobalSettings(jsonObj)
         {
             settings = jsonObj.payload.settings;
-            document.getElementById("setDebug").checked = settings.setDebug;
+            document.getElementById("printDebug").checked = settings.printDebug;
+            document.getElementById("useVirtualPort").checked = settings.useVirtualPort;
             document.getElementById("portName").value = settings.portName;
+            document.getElementById("virtualPortName").style.display = document.getElementById("useVirtualPort").checked ? "" : "none";
+            document.getElementById("outPortList").style.display = document.getElementById("useVirtualPort").checked ? "none" : "";
+            document.getElementById("inPortList").style.display = document.getElementById("useVirtualPort").checked ? "none" : "";
         }
-        
-        function didReceiveSettings(jsonObj)
+                
+        function receivedDataFromPlugin(jsonObj)
         {
-            
+            const payload = jsonObj["payload"];
+            if (payload["event"] == "midiOutPorts")
+            {
+                const outPortSelector = document.getElementById("outPortListSelector");
+                var count = 0;
+                for (i in payload["midiOutPortList"])
+                {
+                    const outPortOption = document.createElement("option");
+                    outPortOption.text = i;
+                    outPortOption.value = count;
+                    outPortSelector.appendChild(outPortOption);
+                    count++;
+                }
+            }
+            else if (payload["event"] == "midiInPorts")
+            {
+                const inPortSelector = document.getElementById("inPortListSelector");
+                var count = 0;
+                for (i in payload["midiInPortList"])
+                {
+                    const inPortOption = document.createElement("option");
+                    inPortOption.text = i;
+                    inPortOption.value = count;
+                    inPortSelector.appendChild(inPortOption);
+                    count++;
+                }
+            }
+            else return;
         }
-        
+                                                                             
         function saveSettings()
         {
             //clear the current settings
@@ -338,27 +388,27 @@
             //save settings here
              if (actionInfo == "uk.co.clarionmusic.midibutton.noteon")
              {
-                 settings.midiChannel = document.getElementById("midiChannel").value;
-                 settings.midiNote = document.getElementById("midiNote").value;
-                 settings.midiVelocity = document.getElementById("midiVelocity").value;
+                 settings.midiChannel = +document.getElementById("midiChannel").value;
+                 settings.midiNote = +document.getElementById("midiNote").value;
+                 settings.midiVelocity = +document.getElementById("midiVelocity").value;
                  settings.noteOffParams = document.getElementById("noteOffParams").value;
              }
              if (actionInfo == "uk.co.clarionmusic.midibutton.programchange")
              {
-                 settings.midiChannel = document.getElementById("midiChannel").value;
-                 settings.midiProgramChange = document.getElementById("midiProgramChange").value;
+                 settings.midiChannel = +document.getElementById("midiChannel").value;
+                 settings.midiProgramChange = +document.getElementById("midiProgramChange").value;
              }
              else if (actionInfo == "uk.co.clarionmusic.midibutton.cc")
              {
-                 settings.midiChannel = document.getElementById("midiChannel").value;
-                 settings.midiCC = document.getElementById("midiCC").value;
-                 settings.midiValue = document.getElementById("midiValue").value;
+                 settings.midiChannel = +document.getElementById("midiChannel").value;
+                 settings.midiCC = +document.getElementById("midiCC").value;
+                 settings.midiValue = +document.getElementById("midiValue").value;
              }
              else if (actionInfo == "uk.co.clarionmusic.midibutton.mmc")
              {
-                 settings.sendMMC = document.getElementById("sendMMC").value;
+                 settings.midiMMC = +document.getElementById("midiMMC").value;
                  //set the icon of the action to the correct image
-                 $SD.api.sendToPlugin(uuid, actionInfo, {msgMMC: settings.sendMMC});
+                 $SD.api.sendToPlugin(uuid, actionInfo, {midiMMC: settings.midiMMC});
              }
             $SD.api.setSettings(uuid, settings);
         }
@@ -369,12 +419,20 @@
             for (var key in settings) delete settings[key];
                                                                              
             //save settings here
-            settings.setDebug = document.getElementById("setDebug").checked;
+            settings.printDebug = document.getElementById("printDebug").checked;
+            settings.useVirtualPort = document.getElementById("useVirtualPort").checked;
             settings.portName = document.getElementById("portName").value;
+            settings.selectedOutPortIndex = +document.getElementById("outPortListSelector").value;
+            settings.selectedInPortIndex = +document.getElementById("inPortListSelector").value;
             $SD.api.setGlobalSettings(uuid, settings);
+            //$SD.api.sendToPlugin(uuid, actionInfo, {event: "getMidiPorts"});
+            
+            document.getElementById("virtualPortName").style.display = document.getElementById("useVirtualPort").checked ? "" : "none";
+            document.getElementById("outPortList").style.display = document.getElementById("useVirtualPort").checked ? "none" : "";
+            document.getElementById("inPortList").style.display = document.getElementById("useVirtualPort").checked ? "none" : "";
         }
     
-        function midi(note)
+        function getMidiNote(note)
         {
             if ((typeof note === 'number' || typeof note === 'string') && note > 0 && note < 128) return +note;
             var p = Array.isArray(note) ? note : parse(note);

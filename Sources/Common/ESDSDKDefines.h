@@ -31,6 +31,7 @@ LICENSE file.
 #define kESDSDKEventKeyDown "keyDown"
 #define kESDSDKEventKeyUp "keyUp"
 #define kESDSDKEventDidReceiveGlobalSettings "didReceiveGlobalSettings"
+#define kESDSDKEventDidReceiveSettings "didReceiveSettings"
 #define kESDSDKEventWillAppear "willAppear"
 #define kESDSDKEventWillDisappear "willDisappear"
 #define kESDSDKEventDeviceDidConnect "deviceDidConnect"

@@ -14,7 +14,15 @@
 
 #include "Common/ESDBasePlugin.h"
 #include "RtMidi.h"
+#include "base64.h"
 #include <mutex>
+#include <fstream>
+
+
+enum class Direction {
+  OUTPUT,
+  INPUT,
+};
 
 #define DEFAULT_PORT_NAME "Streamdeck MIDI"
 
@@ -36,7 +44,7 @@ public:
 	
 	void SendToPlugin(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID) override;
     void DidReceiveGlobalSettings(const json& inPayload) override;
-    void DidReceiveSettings(const std::string& inAction, const std::string& inContext, const json& inPayload, const std::string& inDeviceID);
+    void DidReceiveSettings(const std::string& inAction, const std::string& inContext, const json& inPayload, const std::string& inDeviceID) override;
     
     void SetActionIcon(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID);
 
@@ -48,8 +56,19 @@ private:
     void SendCC(const int midiChannel, const int midiCC, const int midiValue);
     void SendMMC(const int sendMMC);
     
+    std::vector<unsigned char> readFile(const char* filename);
+    
+    void StoreButtonSettings(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID);
+    
+    std::map<std::string, std::string> GetMidiPortList(Direction direction);
+    
+    std::string GetPngAsString(const char* filename);
+    
     struct GlobalSettings {
         std::string portName = DEFAULT_PORT_NAME;
+        int selectedOutPortIndex = 0;
+        int selectedInPortIndex = 0;
+        bool useVirtualPort = true;
         bool printDebug = false;
 
 //      bool isValid() const;
@@ -63,4 +82,30 @@ private:
 	std::set<std::string> mVisibleContexts;
     
     RtMidiOut *midiOut;
+    RtMidiIn *midiIn;
+    
+    std::map<std::string, bool> noteOnButton;//can get rid of this soon
+    
+    struct buttonSettings {
+        
+        //noteOn&Off settings
+        int midiChannel = 1;
+        int midiNote = 0;
+        int midiVelocity = 1;
+        int noteOffParams = 0;
+        bool noteOnOffToggle = true;
+        
+        //programChange settings
+        int midiProgramChange = 0;
+        
+        //midiCC settings
+        int midiCC = 0;
+        int midiValue = 0;
+        
+        //midiMMC settings
+        int midiMMC = 0;
+        bool midiMMCIsActive = false;//use for MIDI input triggerring MMC state change
+    };
+    
+    std::map<std::string, buttonSettings> storedButtonSettings;
 };

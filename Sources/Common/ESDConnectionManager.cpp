@@ -99,6 +99,8 @@ void ESDConnectionManager::OnMessage(
         mPlugin->DeviceDidDisconnect(deviceID);
       } else if (event == kESDSDKEventDidReceiveGlobalSettings) {
         mPlugin->DidReceiveGlobalSettings(payload);
+      } else if (event == kESDSDKEventDidReceiveSettings) {
+        mPlugin->DidReceiveSettings(action, context, payload, deviceID);
       } else if (event == kESDSDKEventSendToPlugin) {
         mPlugin->SendToPlugin(action, context, payload, deviceID);
       }
