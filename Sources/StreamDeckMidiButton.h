@@ -17,7 +17,8 @@
 #include "base64.h"
 #include <mutex>
 #include <fstream>
-
+#include <CoreServices/CoreServices.h>
+#include <sys/stat.h>
 
 enum class Direction {
   OUTPUT,
@@ -25,6 +26,21 @@ enum class Direction {
 };
 
 #define DEFAULT_PORT_NAME "Streamdeck MIDI"
+
+class CallBackTimer
+{
+public:
+    CallBackTimer();
+    ~CallBackTimer();
+
+    void stop();
+    void start(int interval, std::function<void(void)> func);
+    bool is_running() const noexcept;
+
+private:
+    std::atomic<bool> _execute;
+    std::thread _thd;
+};
 
 class StreamDeckMidiButton : public ESDBasePlugin
 {
@@ -49,6 +65,8 @@ public:
     void SetActionIcon(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID);
 
 private:
+    bool InitialiseMidi();
+    void UpdateTimer();
     
     void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int sendNoteOff);
     void SendNoteOff(const int midiChannel, const int midiNote, const int midiVelocity);
@@ -56,9 +74,11 @@ private:
     void SendCC(const int midiChannel, const int midiCC, const int midiValue);
     void SendMMC(const int sendMMC);
     
-    std::vector<unsigned char> readFile(const char* filename);
+    std::vector<unsigned char> ReadFile(const char* filename);
     
     void StoreButtonSettings(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID);
+    
+    void MidiInputCallback(double deltatime, std::vector< unsigned char > *message, void *userData);
     
     std::map<std::string, std::string> GetMidiPortList(Direction direction);
     
@@ -68,8 +88,9 @@ private:
         std::string portName = DEFAULT_PORT_NAME;
         int selectedOutPortIndex = 0;
         int selectedInPortIndex = 0;
-        bool useVirtualPort = true;
+        bool useVirtualPort = false;
         bool printDebug = false;
+        bool initialSetup = false;
 
 //      bool isValid() const;
 //      json toJSON() const;
@@ -83,6 +104,8 @@ private:
     
     RtMidiOut *midiOut;
     RtMidiIn *midiIn;
+    
+    CallBackTimer *mTimer;
     
     std::map<std::string, bool> noteOnButton;//can get rid of this soon
     

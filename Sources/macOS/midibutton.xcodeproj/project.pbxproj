@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		B38C4D7623C4DB88003CA800 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAE515DC215238E400FAF824 /* main.cpp */; };
 		B38F465123C4BE56002CC72A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38F465023C4BE56002CC72A /* RtMidi.cpp */; };
+		B3B8068A23E1D9A60065152F /* midibutton in CopyFiles */ = {isa = PBXBuildFile; fileRef = FABD3D182151193300D30B0C /* midibutton */; };
+		B3B8068C23E1D9CB0065152F /* index.html in CopyFiles */ = {isa = PBXBuildFile; fileRef = B3B8068523E1D9570065152F /* index.html */; };
+		B3DEB71023E8A4BF007FFFF6 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */; };
 		B3E0518423C4E3100077DB3F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */; };
 		B3E0518523C4E3170077DB3F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3E0518223C4E1AE0077DB3F /* CoreAudio.framework */; };
 		B3FC1A7223C4E42000069391 /* StreamDeckMidiButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */; };
@@ -18,23 +21,56 @@
 		FA8731A82152302900B8F323 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA8731A72152302900B8F323 /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		B3B8068B23E1D9AC0065152F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "/Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector";
+			dstSubfolderSpec = 0;
+			files = (
+				B3B8068C23E1D9CB0065152F /* index.html in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B3C001062429331B00FDCD67 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector/js";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FABD3D162151193300D30B0C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "/Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin";
+			dstSubfolderSpec = 0;
+			files = (
+				B3B8068A23E1D9A60065152F /* midibutton in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
-		B32D7B5823DAFB8E0096EC91 /* midibuttonmmc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonmmc@2x.png"; sourceTree = "<group>"; };
-		B32D7B5923DAFB8E0096EC91 /* midibuttonmmc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonmmc.png; sourceTree = "<group>"; };
-		B32D7B5A23DAFB8E0096EC91 /* midibuttoncc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttoncc@2x.png"; sourceTree = "<group>"; };
-		B32D7B5B23DAFB8E0096EC91 /* category-midibutton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton.png"; sourceTree = "<group>"; };
-		B32D7B5C23DAFB8E0096EC91 /* en.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
-		B32D7B5D23DAFB8E0096EC91 /* midibuttoncc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttoncc.png; sourceTree = "<group>"; };
-		B32D7B5E23DAFB8E0096EC91 /* midibuttonnote.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonnote.png; sourceTree = "<group>"; };
-		B32D7B5F23DAFB8E0096EC91 /* midibuttonnote@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonnote@2x.png"; sourceTree = "<group>"; };
-		B32D7B6023DAFB8E0096EC91 /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
-		B32D7B6123DAFB8E0096EC91 /* category-midibutton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton@2x.png"; sourceTree = "<group>"; };
-		B32D7B6223DAFB8E0096EC91 /* midibutton */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.executable"; path = midibutton; sourceTree = "<group>"; };
-		B32D7B6423DAFB8E0096EC91 /* index.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
-		B32D7B6623DAFB8E0096EC91 /* sdpi.css */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
-		B32D7B6823DAFB8E0096EC91 /* common.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
 		B38F464F23C4BE56002CC72A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../RtMidi.h; sourceTree = "<group>"; };
 		B38F465023C4BE56002CC72A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../RtMidi.cpp; sourceTree = "<group>"; };
+		B39BB35B242525A3002D4BD9 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
+		B39BB35C242525A3002D4BD9 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		B3B8067C23E1D9570065152F /* midibuttonmmc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonmmc@2x.png"; sourceTree = "<group>"; };
+		B3B8067D23E1D9570065152F /* midibuttonmmc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonmmc.png; sourceTree = "<group>"; };
+		B3B8067E23E1D9570065152F /* midibuttoncc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttoncc@2x.png"; sourceTree = "<group>"; };
+		B3B8067F23E1D9570065152F /* category-midibutton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton.png"; sourceTree = "<group>"; };
+		B3B8068023E1D9570065152F /* midibuttoncc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttoncc.png; sourceTree = "<group>"; };
+		B3B8068123E1D9570065152F /* midibuttonnote.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonnote.png; sourceTree = "<group>"; };
+		B3B8068223E1D9570065152F /* midibuttonnote@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonnote@2x.png"; sourceTree = "<group>"; };
+		B3B8068323E1D9570065152F /* category-midibutton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton@2x.png"; sourceTree = "<group>"; };
+		B3B8068523E1D9570065152F /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		B3B8068723E1D9570065152F /* sdpi.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
+		B3B8068923E1D9570065152F /* common.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
+		B3DEB70E23E8A4B8007FFFF6 /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../base64.h; sourceTree = "<group>"; };
+		B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../base64.cpp; sourceTree = "<group>"; };
 		B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		B3E0518223C4E1AE0077DB3F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
 		FA7455FA215E788C000F47D3 /* ESDLocalizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ESDLocalizer.cpp; sourceTree = "<group>"; };
@@ -68,48 +104,47 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		B32D7B5723DAFB8E0096EC91 /* co.uk.clarionmusic.midibutton.sdPlugin */ = {
+		B3B8067B23E1D9570065152F /* co.uk.clarionmusic.midibutton.sdPlugin */ = {
 			isa = PBXGroup;
 			children = (
-				B32D7B5823DAFB8E0096EC91 /* midibuttonmmc@2x.png */,
-				B32D7B5923DAFB8E0096EC91 /* midibuttonmmc.png */,
-				B32D7B5A23DAFB8E0096EC91 /* midibuttoncc@2x.png */,
-				B32D7B5B23DAFB8E0096EC91 /* category-midibutton.png */,
-				B32D7B5C23DAFB8E0096EC91 /* en.json */,
-				B32D7B5D23DAFB8E0096EC91 /* midibuttoncc.png */,
-				B32D7B5E23DAFB8E0096EC91 /* midibuttonnote.png */,
-				B32D7B5F23DAFB8E0096EC91 /* midibuttonnote@2x.png */,
-				B32D7B6023DAFB8E0096EC91 /* manifest.json */,
-				B32D7B6123DAFB8E0096EC91 /* category-midibutton@2x.png */,
-				B32D7B6223DAFB8E0096EC91 /* midibutton */,
-				B32D7B6323DAFB8E0096EC91 /* propertyinspector */,
+				B3B8067C23E1D9570065152F /* midibuttonmmc@2x.png */,
+				B3B8067D23E1D9570065152F /* midibuttonmmc.png */,
+				B39BB35B242525A3002D4BD9 /* en.json */,
+				B39BB35C242525A3002D4BD9 /* manifest.json */,
+				B3B8067E23E1D9570065152F /* midibuttoncc@2x.png */,
+				B3B8067F23E1D9570065152F /* category-midibutton.png */,
+				B3B8068023E1D9570065152F /* midibuttoncc.png */,
+				B3B8068123E1D9570065152F /* midibuttonnote.png */,
+				B3B8068223E1D9570065152F /* midibuttonnote@2x.png */,
+				B3B8068323E1D9570065152F /* category-midibutton@2x.png */,
+				B3B8068423E1D9570065152F /* propertyinspector */,
 			);
 			name = co.uk.clarionmusic.midibutton.sdPlugin;
 			path = ../../co.uk.clarionmusic.midibutton.sdPlugin;
 			sourceTree = "<group>";
 		};
-		B32D7B6323DAFB8E0096EC91 /* propertyinspector */ = {
+		B3B8068423E1D9570065152F /* propertyinspector */ = {
 			isa = PBXGroup;
 			children = (
-				B32D7B6423DAFB8E0096EC91 /* index.html */,
-				B32D7B6523DAFB8E0096EC91 /* css */,
-				B32D7B6723DAFB8E0096EC91 /* js */,
+				B3B8068523E1D9570065152F /* index.html */,
+				B3B8068623E1D9570065152F /* css */,
+				B3B8068823E1D9570065152F /* js */,
 			);
 			path = propertyinspector;
 			sourceTree = "<group>";
 		};
-		B32D7B6523DAFB8E0096EC91 /* css */ = {
+		B3B8068623E1D9570065152F /* css */ = {
 			isa = PBXGroup;
 			children = (
-				B32D7B6623DAFB8E0096EC91 /* sdpi.css */,
+				B3B8068723E1D9570065152F /* sdpi.css */,
 			);
 			path = css;
 			sourceTree = "<group>";
 		};
-		B32D7B6723DAFB8E0096EC91 /* js */ = {
+		B3B8068823E1D9570065152F /* js */ = {
 			isa = PBXGroup;
 			children = (
-				B32D7B6823DAFB8E0096EC91 /* common.js */,
+				B3B8068923E1D9570065152F /* common.js */,
 			);
 			path = js;
 			sourceTree = "<group>";
@@ -127,12 +162,14 @@
 		FABD3D0F2151193300D30B0C = {
 			isa = PBXGroup;
 			children = (
-				B32D7B5723DAFB8E0096EC91 /* co.uk.clarionmusic.midibutton.sdPlugin */,
+				B3B8067B23E1D9570065152F /* co.uk.clarionmusic.midibutton.sdPlugin */,
 				FAF9B00721511B61007E00F8 /* pch.h */,
 				FA87319D2151378300B8F323 /* StreamDeckMidiButton.h */,
 				FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */,
 				B38F465023C4BE56002CC72A /* RtMidi.cpp */,
 				B38F464F23C4BE56002CC72A /* RtMidi.h */,
+				B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */,
+				B3DEB70E23E8A4B8007FFFF6 /* base64.h */,
 				FAF9B00921511D3E007E00F8 /* Common */,
 				FABD3D192151193300D30B0C /* Products */,
 				FA8731A62152302900B8F323 /* Frameworks */,
@@ -174,6 +211,10 @@
 			buildPhases = (
 				FABD3D142151193300D30B0C /* Sources */,
 				FABD3D152151193300D30B0C /* Frameworks */,
+				FABD3D162151193300D30B0C /* CopyFiles */,
+				B3B8068B23E1D9AC0065152F /* CopyFiles */,
+				B3C001062429331B00FDCD67 /* CopyFiles */,
+				B38F110423E226F300653DF8 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -215,12 +256,33 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		B38F110423E226F300653DF8 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncp /Users/tomkelly/Dropbox/XCode\\ Projects/Streamdeck-Midibutton/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector/index.html /Users/tomkelly/Library/Application\\ Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector \n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		FABD3D142151193300D30B0C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				FA87319C2151321900B8F323 /* ESDConnectionManager.cpp in Sources */,
+				B3DEB71023E8A4BF007FFFF6 /* base64.cpp in Sources */,
 				B38F465123C4BE56002CC72A /* RtMidi.cpp in Sources */,
 				FA7455FE215E788C000F47D3 /* ESDLocalizer.cpp in Sources */,
 				B3FC1A7223C4E42000069391 /* StreamDeckMidiButton.cpp in Sources */,
