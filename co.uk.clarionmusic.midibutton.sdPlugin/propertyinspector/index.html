@@ -450,6 +450,7 @@
             settings.selectedOutPortIndex = +document.getElementById("outPortListSelector").value;
             settings.selectedInPortIndex = +document.getElementById("inPortListSelector").value;
             $SD.api.setGlobalSettings(uuid, settings);
+            $SD.api.sendToPlugin(uuid, actionInfo, {event: "getMidiPorts"});
             document.getElementById("virtualPortName").style.display = document.getElementById("useVirtualPort").checked ? "" : "none";
             document.getElementById("outPortList").style.display = document.getElementById("useVirtualPort").checked ? "none" : "";
             document.getElementById("inPortList").style.display = document.getElementById("useVirtualPort").checked ? "none" : "";
