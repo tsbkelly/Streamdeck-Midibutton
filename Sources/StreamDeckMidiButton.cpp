@@ -15,15 +15,6 @@
 #include "Common/ESDConnectionManager.h"
 #include "Common/EPLJSONUtils.h"
 
-namespace {
-const char* SEND_NOTE_ON = "uk.co.clarionmusic.midibutton.noteon";
-const char* SEND_CC = "uk.co.clarionmusic.midibutton.cc";
-const char* SEND_MMC = "uk.co.clarionmusic.midibutton.mmc";
-const char* SEND_PROGRAM_CHANGE = "uk.co.clarionmusic.midibutton.programchange";
-const int PUSH_NOTE_OFF = 1;
-const int RELEASE_NOTE_OFF = 2;
-}// namespace
-
 //using this for debugging
 inline std::string const BoolToString(bool b)
 {
@@ -81,7 +72,11 @@ bool CallBackTimer::is_running() const noexcept
 
 StreamDeckMidiButton::StreamDeckMidiButton()
 {
-
+    mTimer = new CallBackTimer();
+    mTimer->start(5, [this]()
+    {
+        this->UpdateTimer();
+    });
 }
 
 StreamDeckMidiButton::~StreamDeckMidiButton()
@@ -105,58 +100,80 @@ StreamDeckMidiButton::~StreamDeckMidiButton()
 
 }
 
-bool StreamDeckMidiButton::InitialiseMidi()
+bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
 {
-    //RtMidi constructor
-    try
+    switch (direction)
     {
-        if (midiOut != nullptr)
+        case Direction::OUTPUT:
         {
-            mConnectionManager->LogMessage("midiOut is already initialised - deleting");
-            delete midiOut;
+            try
+            {
+                if (midiOut != nullptr)
+                {
+                    mConnectionManager->LogMessage("midiOut is already initialised - deleting");
+                    delete midiOut;
+                }
+                midiOut = new RtMidiOut();
+#if defined (__APPLE__)
+                if (mGlobalSettings.useVirtualPort)
+                {
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening virtual OUTPUT port called: " + mGlobalSettings.portName);
+                    midiOut->openVirtualPort(mGlobalSettings.portName);
+                }
+                else
+                {
+#endif
+                    // open the selected OUTPUT port
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening OUTPUT port index: " + std::to_string(mGlobalSettings.selectedOutPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings.selectedOutPortIndex));
+                    midiOut->openPort(mGlobalSettings.selectedOutPortIndex);
+#if defined (__APPLE__)
+                }
+#endif
+            }
+            catch (RtMidiError &error)
+            {
+                if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(error.getMessage());
+                exit(EXIT_FAILURE);
+            }
+            return true;
         }
-        if (midiIn != nullptr)
+        case Direction::INPUT:
         {
-            mConnectionManager->LogMessage("midiIn is already initialised - deleting");
-            delete midiIn;
+            try
+            {
+                if (midiIn != nullptr)
+                {
+                    mConnectionManager->LogMessage("midiIn is already initialised - deleting");
+                    delete midiIn;
+                }
+                midiIn = new RtMidiIn();
+                
+                // don't ignore sysex, timing or active sensing messages
+                midiIn->ignoreTypes(false, false, false);
+#if defined (__APPLE__)
+                if (mGlobalSettings.useVirtualPort)
+                {
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening virtual INPUT port called: " + mGlobalSettings.portName);
+                    midiIn->openVirtualPort(mGlobalSettings.portName);
+                }
+                else
+                {
+#endif
+                    // open the selected INPUT port
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening INPUT port index: " + std::to_string(mGlobalSettings.selectedInPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings.selectedInPortIndex));
+                    midiIn->openPort(mGlobalSettings.selectedInPortIndex);
+                }
+            }
+            catch (RtMidiError &error)
+            {
+                if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(error.getMessage());
+                exit(EXIT_FAILURE);
+            }
+            return true;
+#if defined (__APPLE__)
         }
-        midiOut = new RtMidiOut();
-        midiIn = new RtMidiIn();
-        
-        // don't ignore sysex, timing or active sensing messages
-        midiIn->ignoreTypes(false, false, false);
-        if (mGlobalSettings.useVirtualPort)
-        {
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening virtual OUTPUT port called: " + mGlobalSettings.portName);
-            midiOut->openVirtualPort(mGlobalSettings.portName);
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening virtual INPUT port called: " + mGlobalSettings.portName);
-            midiIn->openVirtualPort(mGlobalSettings.portName);
-        }
-        else
-        {
-            // open the selected OUTPUT port
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening OUTPUT port index: " + std::to_string(mGlobalSettings.selectedOutPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings.selectedOutPortIndex));
-            //midiOut->closePort();
-            midiOut->openPort(mGlobalSettings.selectedOutPortIndex);
-            
-            // open the selected INPUT port
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening INPUT port index: " + std::to_string(mGlobalSettings.selectedInPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings.selectedInPortIndex));
-            //midiIn->closePort();
-            midiIn->openPort(mGlobalSettings.selectedInPortIndex);
-        }
+#endif
     }
-    catch (RtMidiError &error)
-    {
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(error.getMessage());
-        exit(EXIT_FAILURE);
-    }
-        
-    mTimer = new CallBackTimer();
-    mTimer->start(5, [this]()
-    {
-        this->UpdateTimer();
-    });
-    return true;
 }
 
 void StreamDeckMidiButton::UpdateTimer()
@@ -164,29 +181,25 @@ void StreamDeckMidiButton::UpdateTimer()
     //
     // Warning: UpdateTimer() is running in the timer thread
     //
-    
-    if (midiIn == nullptr)
+    if (midiIn != nullptr)
     {
-        mConnectionManager->LogMessage("no midiIn - returning");
-        return;
-    }
-    
-    if (mConnectionManager != nullptr)
-    {
-        std::vector<unsigned char> message;
-        std::string logMessage;
-        double stamp;
-        int nBytes;
-        
-        stamp = midiIn->getMessage(&message);
-        nBytes = message.size();
-        if (nBytes > 0)
+        if (mConnectionManager != nullptr)
         {
-            for (int i = 0; i < nBytes; i++)
+            std::vector<unsigned char> message;
+            std::string logMessage;
+            double stamp;
+            int nBytes;
+            
+            stamp = midiIn->getMessage(&message);
+            nBytes = message.size();
+            if (nBytes > 0)
             {
-                //mConnectionManager->LogMessage("Byte " + std::to_string(i) + " = " + std::to_string((int)message[i]) + ", stamp = " + std::to_string(stamp));
-                if ((int)message[i] == 247) mConnectionManager->LogMessage("Byte " + std::to_string(i) + " = " + intToHex((int)message[i]) + " -> EOM");
-                else mConnectionManager->LogMessage("Byte " + std::to_string(i) + " = " + intToHex((int)message[i]));
+                for (int i = 0; i < nBytes; i++)
+                {
+                    //mConnectionManager->LogMessage("Byte " + std::to_string(i) + " = " + std::to_string((int)message[i]) + ", stamp = " + std::to_string(stamp));
+                    if ((int)message[i] == 247) mConnectionManager->LogMessage("Byte " + std::to_string(i) + " = " + intToHex((int)message[i]) + " -> EOM");
+                    else mConnectionManager->LogMessage("Byte " + std::to_string(i) + " = " + intToHex((int)message[i]));
+                }
             }
         }
     }
@@ -201,17 +214,17 @@ void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, cons
     if (inPayload["settings"].find("midiChannel") != inPayload["settings"].end())
     {
         thisButtonSettings.midiChannel = inPayload["settings"]["midiChannel"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiChannel to " + std::to_string(thisButtonSettings.midiChannel));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiChannel to " + std::to_string(thisButtonSettings.midiChannel));
     }
     if (inPayload["settings"].find("midiNote") != inPayload["settings"].end())
     {
         thisButtonSettings.midiNote = inPayload["settings"]["midiNote"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiNote to " + std::to_string(thisButtonSettings.midiNote));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiNote to " + std::to_string(thisButtonSettings.midiNote));
     }
     if (inPayload["settings"].find("midiVelocity") != inPayload["settings"].end())
     {
         thisButtonSettings.midiVelocity = inPayload["settings"]["midiVelocity"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiVelocity to " + std::to_string(thisButtonSettings.midiVelocity));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiVelocity to " + std::to_string(thisButtonSettings.midiVelocity));
     }
     if (inPayload["settings"].find("noteOffParams") != inPayload["settings"].end())
     {
@@ -220,33 +233,44 @@ void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, cons
         int noteOffParams = 0;
         MNO >> noteOffParams;
         thisButtonSettings.noteOffParams = noteOffParams;
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting noteOffParams to " + std::to_string(thisButtonSettings.noteOffParams));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting noteOffParams to " + std::to_string(thisButtonSettings.noteOffParams));
     }
     if (inPayload["settings"].find("midiProgramChange") != inPayload["settings"].end())
     {
         thisButtonSettings.midiProgramChange = inPayload["settings"]["midiProgramChange"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiProgramChange to " + std::to_string(thisButtonSettings.midiProgramChange));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiProgramChange to " + std::to_string(thisButtonSettings.midiProgramChange));
     }
     if (inPayload["settings"].find("midiCC") != inPayload["settings"].end())
     {
         thisButtonSettings.midiCC = inPayload["settings"]["midiCC"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiCC to " + std::to_string(thisButtonSettings.midiCC));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiCC to " + std::to_string(thisButtonSettings.midiCC));
     }
     if (inPayload["settings"].find("midiValue") != inPayload["settings"].end())
     {
         thisButtonSettings.midiValue = inPayload["settings"]["midiValue"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiValue to " + std::to_string(thisButtonSettings.midiValue));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiValue to " + std::to_string(thisButtonSettings.midiValue));
+    }
+    if (inPayload["settings"].find("midiValueSec") != inPayload["settings"].end())
+    {
+        thisButtonSettings.midiValueSec = inPayload["settings"]["midiValueSec"];
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiValueSec to " + std::to_string(thisButtonSettings.midiValueSec));
     }
     if (inPayload["settings"].find("midiMMC") != inPayload["settings"].end())
     {
         thisButtonSettings.midiMMC = inPayload["settings"]["midiMMC"];
-        if (mGlobalSettings.printDebug)mConnectionManager->LogMessage("Setting midiMMC to " + std::to_string(thisButtonSettings.midiMMC));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiMMC to " + std::to_string(thisButtonSettings.midiMMC));
+    }
+    if (inPayload["settings"].find("toggleCC") != inPayload["settings"].end())
+    {
+        thisButtonSettings.toggleCC = inPayload["settings"]["toggleCC"];
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting toggleCC to " + std::to_string(thisButtonSettings.toggleCC));
     }
     
     //store everything into the map
     if (storedButtonSettings.insert(std::make_pair(inContext, thisButtonSettings)).second == false)
     {
         //key already exists, so replace it
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Key already exists - replacing");
         storedButtonSettings[inContext] = thisButtonSettings;
     }
     
@@ -255,14 +279,16 @@ void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, cons
     
     if (mGlobalSettings.printDebug)//check it's been stored correctly
     {
-        mConnectionManager->LogMessage("midiChannel for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiChannel));
-        mConnectionManager->LogMessage("midiNote for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiNote));
-        mConnectionManager->LogMessage("midiVelocity for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiVelocity));
-        mConnectionManager->LogMessage("noteOffParams for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].noteOffParams));
-        mConnectionManager->LogMessage("midiProgramChange for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiProgramChange));
-        mConnectionManager->LogMessage("midiCC for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiCC));
-        mConnectionManager->LogMessage("midiValue for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiValue));
-        mConnectionManager->LogMessage("midiMMC for " + inContext + "is set to: " + std::to_string(storedButtonSettings[inContext].midiMMC));
+        //iterate through settings and log messages - should be a way to do this in a loop
+        mConnectionManager->LogMessage("midiChannel for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiChannel));
+        mConnectionManager->LogMessage("midiNote for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiNote));
+        mConnectionManager->LogMessage("midiVelocity for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiVelocity));
+        mConnectionManager->LogMessage("noteOffParams for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].noteOffParams));
+        mConnectionManager->LogMessage("midiProgramChange for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiProgramChange));
+        mConnectionManager->LogMessage("midiCC for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiCC));
+        mConnectionManager->LogMessage("midiValue for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiValue));
+        mConnectionManager->LogMessage("midiValueSec for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiValueSec));
+        mConnectionManager->LogMessage("midiMMC for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiMMC));
     }
 }
 
@@ -295,17 +321,17 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
             
             else if (storedButtonSettings[inContext].noteOffParams == 3)
             {
-                if (storedButtonSettings[inContext].noteOnOffToggle)
+                if (storedButtonSettings[inContext].toggleNoteOnOff)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("noteOnOffToggle is set to " + BoolToString(storedButtonSettings[inContext].noteOnOffToggle));
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleNoteOnOff is set to " + BoolToString(storedButtonSettings[inContext].toggleNoteOnOff));
                     SendNoteOn(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiNote, storedButtonSettings[inContext].midiVelocity, storedButtonSettings[inContext].noteOffParams);
-                    storedButtonSettings[inContext].noteOnOffToggle = !storedButtonSettings[inContext].noteOnOffToggle;
+                    storedButtonSettings[inContext].toggleNoteOnOff = !storedButtonSettings[inContext].toggleNoteOnOff;
                 }
-                else if (!storedButtonSettings[inContext].noteOnOffToggle)
+                else if (!storedButtonSettings[inContext].toggleNoteOnOff)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("noteOnOffToggle is set to " + BoolToString(storedButtonSettings[inContext].noteOnOffToggle));
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleNoteOnOff is set to " + BoolToString(storedButtonSettings[inContext].toggleNoteOnOff));
                     SendNoteOff(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiNote, storedButtonSettings[inContext].midiVelocity);
-                    storedButtonSettings[inContext].noteOnOffToggle = !storedButtonSettings[inContext].noteOnOffToggle;
+                    storedButtonSettings[inContext].toggleNoteOnOff = !storedButtonSettings[inContext].toggleNoteOnOff;
                 }
             }
         }
@@ -317,7 +343,50 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
                 mConnectionManager->LogMessage("inContext: " + inContext);
             }
             
-            SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+            if (storedButtonSettings[inContext].toggleCC)
+            {
+                if (storedButtonSettings[inContext].toggleCCState)
+                {
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleCCState is set to " + BoolToString(storedButtonSettings[inContext].toggleCCState));
+                    SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+                    storedButtonSettings[inContext].toggleCCState = !storedButtonSettings[inContext].toggleCCState;
+                }
+                else if (!storedButtonSettings[inContext].toggleCCState)
+                {
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleCCState is set to " + BoolToString(storedButtonSettings[inContext].toggleCCState));
+                    SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                    storedButtonSettings[inContext].toggleCCState = !storedButtonSettings[inContext].toggleCCState;
+                }
+            }
+
+            else if (!storedButtonSettings[inContext].toggleCC)
+            {
+                SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+            }
+        }
+        else if (inAction == SEND_CC_TOGGLE)
+        {
+            if (mGlobalSettings.printDebug)
+            {
+                mConnectionManager->LogMessage("inAction: " + inAction);
+                mConnectionManager->LogMessage("inContext: " + inContext);
+                if (inPayload.contains("state")) mConnectionManager->LogMessage("we have a state of " + std::to_string(inPayload["state"].get<int>()));
+                if (inPayload.contains("userDefinedState")) mConnectionManager->LogMessage("we have a userDesiredState of " + std::to_string(inPayload["userDesiredState"].get<int>()));
+            }
+            if (inPayload.contains("state"))
+            {
+                if (inPayload.contains("userDesiredState"))
+                {
+                    if (inPayload["userDesiredState"].get<int>() == 0) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+                    else if (inPayload["userDesiredState"].get<int>() == 1) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                }
+                else
+                {
+                    if (inPayload["state"].get<int>() == 0) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+                    else if (inPayload["state"].get<int>() == 1) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                }
+            }
+            else mConnectionManager->LogMessage("Something's gone wrong - should have a state, and we don't have");
         }
         else if (inAction == SEND_PROGRAM_CHANGE)
         {
@@ -371,18 +440,28 @@ void StreamDeckMidiButton::WillAppearForAction(const std::string& inAction, cons
         mConnectionManager->LogMessage("Requesting global settings from WillAppear");
         mConnectionManager->GetGlobalSettings();
         mConnectionManager->LogMessage("Calling InitialiseMidi()");
-        if (InitialiseMidi())
+        if (InitialiseMidi(Direction::INPUT))
         {
-            mConnectionManager->LogMessage("MIDI initialised successfully");
-            mGlobalSettings.initialSetup = true;
+            mConnectionManager->LogMessage("MIDI input initialised successfully");
         }
         else
         {
-            mConnectionManager->LogMessage("Something went wrong initialising MIDI");
+            mConnectionManager->LogMessage("Something went wrong initialising MIDI input");
             return;
         }
+        if (InitialiseMidi(Direction::OUTPUT))
+        {
+            mConnectionManager->LogMessage("MIDI output initialised successfully");
+        }
+        else
+        {
+            mConnectionManager->LogMessage("Something went wrong initialising MIDI output");
+            return;
+        }
+        mGlobalSettings.initialSetup = true;
     }
     if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("WillAppearForAction() - setting the storedButtonSettings for button: " + inContext);
+    if (inAction == SEND_CC_TOGGLE) mConnectionManager->LogMessage(inPayload.dump().c_str());
     StoreButtonSettings(inAction, inContext, inPayload, inDeviceID);
     
 	// Remember the context
@@ -428,12 +507,14 @@ void StreamDeckMidiButton::SendToPlugin(const std::string& inAction, const std::
         std::map <std::string, std::string> midiPortList = GetMidiPortList(Direction::OUTPUT);
         if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiOutPorts"},{"midiOutPortList", midiPortList}}).dump().c_str());
         mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiOutPorts"},{"midiOutPortList", midiPortList}}));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiOutPortSelected"},{"midiOutPortSelected", mGlobalSettings.selectedOutPortIndex}}).dump().c_str());
         mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiOutPortSelected"},{"midiOutPortSelected", mGlobalSettings.selectedOutPortIndex}}));
         
         if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Trying to get list of Input MIDI ports");
         midiPortList = GetMidiPortList(Direction::INPUT);
         if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiInPorts"},{"midiInPortList", midiPortList}}).dump().c_str());
         mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiInPorts"},{"midiInPortList", midiPortList}}));
+        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiInPortSelected"},{"midiInPortSelected", mGlobalSettings.selectedInPortIndex}}).dump().c_str());
         mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiInPortSelected"},{"midiInPortSelected", mGlobalSettings.selectedInPortIndex}}));
         return;
 
@@ -448,37 +529,113 @@ void StreamDeckMidiButton::SendToPlugin(const std::string& inAction, const std::
 void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
 {
     //check to see whether the DEBUG flag is set - should also check whether these have changed
-    if (inPayload["settings"].find("printDebug") != inPayload["settings"].end()) mGlobalSettings.printDebug = inPayload["settings"]["printDebug"];
-    if (inPayload["settings"].find("useVirtualPort") != inPayload["settings"].end()) mGlobalSettings.useVirtualPort = inPayload["settings"]["useVirtualPort"];
-    
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("mGlobalSettings.printDebug is set to " + BoolToString(mGlobalSettings.printDebug) + " - will print all debug messages");
-    else if (!mGlobalSettings.printDebug) mConnectionManager->LogMessage("mGlobalSettings.printDebug is set to " + BoolToString(mGlobalSettings.printDebug) + " - won't print any debug messages");
-    
-    //need to check that the midi port is a valid name - no special characters etc.
-    //first, check that the portName actually has changed, to avoid unnecessarily re-opening the port
-    //TODO
-    std::string portName = inPayload["settings"]["portName"];
-    
-    mGlobalSettings.portName = inPayload["settings"]["portName"];
-    mGlobalSettings.selectedOutPortIndex = inPayload["settings"]["selectedOutPortIndex"];
-    mGlobalSettings.selectedInPortIndex = inPayload["settings"]["selectedInPortIndex"];
-    
-    if (mGlobalSettings.printDebug && !mGlobalSettings.useVirtualPort)
+    if (inPayload["settings"].find("printDebug") != inPayload["settings"].end())
     {
-        mConnectionManager->LogMessage("Selected OUTPUT port index is " + std::to_string(mGlobalSettings.selectedOutPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings.selectedOutPortIndex));
-        mConnectionManager->LogMessage("Selected INPUT port index is " + std::to_string(mGlobalSettings.selectedInPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings.selectedInPortIndex));
+        if (mGlobalSettings.printDebug != inPayload["settings"]["printDebug"])
+        {
+            //printDebug has changed - update
+            mGlobalSettings.printDebug = inPayload["settings"]["printDebug"];
+            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("mGlobalSettings.printDebug is set to " + BoolToString(mGlobalSettings.printDebug) + " - will print all debug messages");
+            else if (!mGlobalSettings.printDebug) mConnectionManager->LogMessage("mGlobalSettings.printDebug is set to " + BoolToString(mGlobalSettings.printDebug) + " - won't print any debug messages");
+        }
     }
     
-    //reinitialise the midi port here with the correct name
-    if (InitialiseMidi())
+    //check to see whether we're using the virtual port
+    if (inPayload["settings"].find("useVirtualPort") != inPayload["settings"].end())
     {
-        mConnectionManager->LogMessage("MIDI re-initialised successfully");
-        mGlobalSettings.initialSetup = true;
-    }
-    else
-    {
-        mConnectionManager->LogMessage("Something went wrong re-initialising MIDI");
-        return;
+        if (!inPayload["settings"]["useVirtualPort"])
+        {
+            //not using the virtual port
+            mConnectionManager->LogMessage("not using the virtual port - open physical port");
+            mGlobalSettings.useVirtualPort = false;
+            
+            mGlobalSettings.selectedOutPortIndex = inPayload["settings"]["selectedOutPortIndex"];
+            mGlobalSettings.selectedInPortIndex = inPayload["settings"]["selectedInPortIndex"];
+            if (mGlobalSettings.printDebug)
+            {
+                mConnectionManager->LogMessage("Selected OUTPUT port index is " + std::to_string(mGlobalSettings.selectedOutPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings.selectedOutPortIndex));
+                mConnectionManager->LogMessage("Selected INPUT port index is " + std::to_string(mGlobalSettings.selectedInPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings.selectedInPortIndex));
+            }
+            
+            //reinitialise the midi port here with the correct name
+            if (InitialiseMidi(Direction::INPUT))
+            {
+                mConnectionManager->LogMessage("MIDI input re-initialised successfully");
+            }
+            else
+            {
+                mConnectionManager->LogMessage("Something went wrong re-initialising MIDI input");
+                return;
+            }
+            if (InitialiseMidi(Direction::OUTPUT))
+            {
+                mConnectionManager->LogMessage("MIDI output re-initialised successfully");
+            }
+            else
+            {
+                mConnectionManager->LogMessage("Something went wrong re-initialising MIDI output");
+                return;
+            }
+        }
+        else if (inPayload["settings"]["useVirtualPort"])//if useVirtualPort has been set to true
+        {
+            if (mGlobalSettings.useVirtualPort == inPayload["settings"]["useVirtualPort"])
+            {
+                //useVirtualPort hasn't changed - has the portName changed?
+                if (mGlobalSettings.portName != inPayload["settings"]["portName"])
+                {
+                    //the portName has changed and we're using the virtual port - reinitialise MIDI with the correct portName
+                    mGlobalSettings.portName = inPayload["settings"]["portName"];
+                    if (InitialiseMidi(Direction::INPUT))
+                    {
+                        mConnectionManager->LogMessage("MIDI input re-initialised successfully");
+                    }
+                    else
+                    {
+                        mConnectionManager->LogMessage("Something went wrong re-initialising MIDI input");
+                        return;
+                    }
+                    if (InitialiseMidi(Direction::OUTPUT))
+                    {
+                        mConnectionManager->LogMessage("MIDI output re-initialised successfully");
+                    }
+                    else
+                    {
+                        mConnectionManager->LogMessage("Something went wrong re-initialising MIDI output");
+                        return;
+                    }
+                }
+                else if (mGlobalSettings.portName == inPayload["settings"]["portName"])
+                {
+                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Virtual Port name hasn't changed - not re-initialising");
+                    return;
+                }
+            }
+            else if (mGlobalSettings.useVirtualPort != inPayload["settings"]["useVirtualPort"])
+            {
+                //useVirtualPort has changed
+                mGlobalSettings.useVirtualPort = true;
+                //re-initialise MIDI with the virtual port
+                if (InitialiseMidi(Direction::INPUT))
+                {
+                    mConnectionManager->LogMessage("MIDI input re-initialised successfully");
+                }
+                else
+                {
+                    mConnectionManager->LogMessage("Something went wrong re-initialising MIDI input");
+                    return;
+                }
+                if (InitialiseMidi(Direction::OUTPUT))
+                {
+                    mConnectionManager->LogMessage("MIDI output re-initialised successfully");
+                }
+                else
+                {
+                    mConnectionManager->LogMessage("Something went wrong re-initialising MIDI output");
+                    return;
+                }
+            }
+        }
     }
 }
 

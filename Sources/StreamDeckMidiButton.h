@@ -20,6 +20,18 @@
 #include <CoreServices/CoreServices.h>
 #include <sys/stat.h>
 
+// namespace
+namespace {
+const char* SEND_NOTE_ON = "uk.co.clarionmusic.midibutton.noteon";
+const char* SEND_CC = "uk.co.clarionmusic.midibutton.cc";
+const char* SEND_CC_TOGGLE = "uk.co.clarionmusic.midibutton.cctoggle";
+const char* SEND_MMC = "uk.co.clarionmusic.midibutton.mmc";
+const char* SEND_PROGRAM_CHANGE = "uk.co.clarionmusic.midibutton.programchange";
+const int PUSH_NOTE_OFF = 1;
+const int RELEASE_NOTE_OFF = 2;
+}
+
+//enum Direction for MIDI In/Out
 enum class Direction {
   OUTPUT,
   INPUT,
@@ -65,7 +77,9 @@ public:
     void SetActionIcon(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID);
 
 private:
-    bool InitialiseMidi();
+    bool InitialiseMidi(Direction direction);
+    std::map<std::string, std::string> GetMidiPortList(Direction direction);
+    
     void UpdateTimer();
     
     void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int sendNoteOff);
@@ -79,8 +93,6 @@ private:
     void StoreButtonSettings(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID);
     
     void MidiInputCallback(double deltatime, std::vector< unsigned char > *message, void *userData);
-    
-    std::map<std::string, std::string> GetMidiPortList(Direction direction);
     
     std::string GetPngAsString(const char* filename);
     
@@ -116,7 +128,7 @@ private:
         int midiNote = 0;
         int midiVelocity = 1;
         int noteOffParams = 0;
-        bool noteOnOffToggle = true;
+        bool toggleNoteOnOff = true;
         
         //programChange settings
         int midiProgramChange = 0;
@@ -124,6 +136,12 @@ private:
         //midiCC settings
         int midiCC = 0;
         int midiValue = 0;
+        int midiValueSec = 0;
+        
+        bool state = false;
+        
+        bool toggleCC = true;
+        bool toggleCCState = true;
         
         //midiMMC settings
         int midiMMC = 0;

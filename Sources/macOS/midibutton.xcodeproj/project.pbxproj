@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		B34D5CAC24309CAA009B7CD9 /* pi.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = B34D5CAB24309C5E009B7CD9 /* pi.js */; };
 		B38C4D7623C4DB88003CA800 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAE515DC215238E400FAF824 /* main.cpp */; };
 		B38F465123C4BE56002CC72A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38F465023C4BE56002CC72A /* RtMidi.cpp */; };
+		B3B7A1AA2431FE6800F0DEAC /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = B39BB35C242525A3002D4BD9 /* manifest.json */; };
 		B3B8068A23E1D9A60065152F /* midibutton in CopyFiles */ = {isa = PBXBuildFile; fileRef = FABD3D182151193300D30B0C /* midibutton */; };
 		B3B8068C23E1D9CB0065152F /* index.html in CopyFiles */ = {isa = PBXBuildFile; fileRef = B3B8068523E1D9570065152F /* index.html */; };
 		B3DEB71023E8A4BF007FFFF6 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */; };
@@ -36,8 +38,9 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector/js";
-			dstSubfolderSpec = 7;
+			dstSubfolderSpec = 0;
 			files = (
+				B34D5CAC24309CAA009B7CD9 /* pi.js in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,6 +50,7 @@
 			dstPath = "/Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin";
 			dstSubfolderSpec = 0;
 			files = (
+				B3B7A1AA2431FE6800F0DEAC /* manifest.json in CopyFiles */,
 				B3B8068A23E1D9A60065152F /* midibutton in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -54,6 +58,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		B34D5CAB24309C5E009B7CD9 /* pi.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi.js; sourceTree = "<group>"; };
 		B38F464F23C4BE56002CC72A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../RtMidi.h; sourceTree = "<group>"; };
 		B38F465023C4BE56002CC72A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../RtMidi.cpp; sourceTree = "<group>"; };
 		B39BB35B242525A3002D4BD9 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
@@ -145,6 +150,7 @@
 			isa = PBXGroup;
 			children = (
 				B3B8068923E1D9570065152F /* common.js */,
+				B34D5CAB24309C5E009B7CD9 /* pi.js */,
 			);
 			path = js;
 			sourceTree = "<group>";
@@ -214,7 +220,6 @@
 				FABD3D162151193300D30B0C /* CopyFiles */,
 				B3B8068B23E1D9AC0065152F /* CopyFiles */,
 				B3C001062429331B00FDCD67 /* CopyFiles */,
-				B38F110423E226F300653DF8 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -255,26 +260,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		B38F110423E226F300653DF8 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\ncp /Users/tomkelly/Dropbox/XCode\\ Projects/Streamdeck-Midibutton/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector/index.html /Users/tomkelly/Library/Application\\ Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector \n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		FABD3D142151193300D30B0C /* Sources */ = {
