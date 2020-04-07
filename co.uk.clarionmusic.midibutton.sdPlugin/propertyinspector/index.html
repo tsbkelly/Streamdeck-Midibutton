@@ -10,7 +10,27 @@
     </div>
 
     <script src="js/common.js"></script>
-    <script src="js/pi.js"></script>
     
+    <script>
+    (function() { // Scoping function to avoid globals
+        //var src = /*you want the main version*/ ? "jquery_computer.js" : "mobile_version.js";
+        
+        var src;
+                
+        if (window.navigator.userAgent.indexOf("Windows NT 10.0") != -1)
+        {
+            console.log("Windows");
+            src = "pi_win.js";
+        }
+        if (window.navigator.userAgent.indexOf("Mac") != -1)
+        {
+            console.log("Mac");
+            src = "pi_mac.js";
+        }
+
+        document.write('<script src="js/' + src + '"><\/script>');
+    })();
+    </script>
+
 </body>
 </html>

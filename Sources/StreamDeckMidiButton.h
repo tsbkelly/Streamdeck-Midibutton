@@ -33,8 +33,8 @@ const int RELEASE_NOTE_OFF = 2;
 
 //enum Direction for MIDI In/Out
 enum class Direction {
-  OUTPUT,
-  INPUT,
+  OUT,
+  IN,
 };
 
 #define DEFAULT_PORT_NAME "Streamdeck MIDI"
@@ -80,7 +80,7 @@ private:
     bool InitialiseMidi(Direction direction);
     std::map<std::string, std::string> GetMidiPortList(Direction direction);
     
-    void UpdateTimer();
+    void GetMidiInput();
     
     void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int sendNoteOff);
     void SendNoteOff(const int midiChannel, const int midiNote, const int midiVelocity);
@@ -103,25 +103,10 @@ private:
         bool useVirtualPort = false;
         bool printDebug = false;
         bool initialSetup = false;
-
-//      bool isValid() const;
-//      json toJSON() const;
-//      static PortSettings fromJSON(const json&);
+        int sampleInterval = 1;
     };
-    //PortSettings stored globally
-    GlobalSettings mGlobalSettings;
     
-    std::mutex mVisibleContextsMutex;
-	std::set<std::string> mVisibleContexts;
-    
-    RtMidiOut *midiOut;
-    RtMidiIn *midiIn;
-    
-    CallBackTimer *mTimer;
-    
-    std::map<std::string, bool> noteOnButton;//can get rid of this soon
-    
-    struct buttonSettings {
+    struct ButtonSettings {
         
         //noteOn&Off settings
         int midiChannel = 1;
@@ -143,10 +128,50 @@ private:
         bool toggleCC = true;
         bool toggleCCState = true;
         
+        bool toggleFade = false;
+        float fadeTime = 0;
+        float fadeCurve = 0;
+        
         //midiMMC settings
         int midiMMC = 0;
         bool midiMMCIsActive = false;//use for MIDI input triggerring MMC state change
     };
     
-    std::map<std::string, buttonSettings> storedButtonSettings;
+    struct FadeSet {
+        public:
+            bool fadeActive = false;
+            bool fadeFinished = false;
+            std::vector<float> inSet;
+            std::vector<float> outSet;
+            Direction currentDirection;
+            int currentValue = 0;
+            //FadeSet (const int fromValue, const int toValue, const int setSize, const float intervalSize, const float fadeCurve);
+            FadeSet ();
+            FadeSet (const int fromValue, const int toValue, const float fadeTime, const float fadeCurve, const int sampleInterval);
+            bool UpdateFade();
+        private:
+            int setSize = 0;
+            int fromValue = 0;
+            int toValue = 0;
+            int currentIndex = 0;
+            int inPrevValue = 0;
+            int outPrevValue = 0;
+            float intervalSize = 0;
+    };
+    
+    //PortSettings stored globally
+    GlobalSettings *mGlobalSettings;
+    
+    std::mutex mVisibleContextsMutex;
+	std::set<std::string> mVisibleContexts;
+    
+    RtMidiOut *midiOut;
+    RtMidiIn *midiIn;
+    
+    CallBackTimer *mTimer;
+    
+    std::map<std::string, ButtonSettings> storedButtonSettings;
+    std::map<std::string, FadeSet> storedFadeSettings;
 };
+
+
