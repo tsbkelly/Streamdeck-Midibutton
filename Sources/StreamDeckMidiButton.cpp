@@ -72,30 +72,76 @@ bool CallBackTimer::is_running() const noexcept
 
 StreamDeckMidiButton::StreamDeckMidiButton()
 {
+    //instantiate a new GlobalSettings object
+    mGlobalSettings = new GlobalSettings;
+    
+    //start a new timer and call the function every 1 ms
     mTimer = new CallBackTimer();
-    mTimer->start(5, [this]()
+    mTimer->start(1, [this]()
     {
-        this->UpdateTimer();
+        //check for MIDI input and act on it - to be written
+        this->GetMidiInput();
+        
+        //check each button and see if we need to do a fade
+        
+        // Create a map iterator and point to beginning of map
+        
+        std::map<std::string, FadeSet>::iterator it = this->storedFadeSettings.begin();
+        
+        // Iterate over the map using Iterator till end.
+        while (it != this->storedFadeSettings.end())
+        {
+            if (this->storedFadeSettings[it->first].fadeActive)//it->first is the same as inContext
+            {
+                if (this->storedFadeSettings[it->first].UpdateFade())
+                {
+                    //we have an updated value - send it out as a MIDI CC message
+                    SendCC(storedButtonSettings[it->first].midiChannel, storedButtonSettings[it->first].midiCC, storedFadeSettings[it->first].currentValue);
+                }
+            }
+            if (this->storedFadeSettings[it->first].fadeFinished)
+            {
+                //we have a finished fade - print a TICK to the button
+                mConnectionManager->ShowOKForContext(it->first);
+                this->storedFadeSettings[it->first].fadeFinished = !this->storedFadeSettings[it->first].fadeFinished;
+            }
+            // Increment the Iterator to point to next entry
+            it++;
+        }
     });
 }
 
 StreamDeckMidiButton::~StreamDeckMidiButton()
 {
-    if (midiOut != nullptr)
+    try
     {
-        delete midiOut;
-        midiOut = nullptr;
+        if (midiOut != nullptr)
+        {
+            delete midiOut;
+            midiOut = nullptr;
+        }
+        if (midiIn != nullptr)
+        {
+            delete midiIn;
+            midiIn = nullptr;
+        }
+        if(mTimer != nullptr)
+        {
+            mTimer->stop();
+            delete mTimer;
+            mTimer = nullptr;
+        }
+        if(mGlobalSettings != nullptr)
+        {
+            delete mGlobalSettings;
+            mGlobalSettings = nullptr;
+        }
+
     }
-    if (midiIn != nullptr)
+    catch (std::exception e)
     {
-        delete midiIn;
-        midiIn = nullptr;
-    }
-    if(mTimer != nullptr)
-    {
-        mTimer->stop();
-        delete mTimer;
-        mTimer = nullptr;
+        mConnectionManager->LogMessage(e.what());
+        exit(EXIT_FAILURE);
     }
 
 }
@@ -104,7 +150,7 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
 {
     switch (direction)
     {
-        case Direction::OUTPUT:
+        case Direction::OUT:
         {
             try
             {
@@ -115,29 +161,29 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
                 }
                 midiOut = new RtMidiOut();
 #if defined (__APPLE__)
-                if (mGlobalSettings.useVirtualPort)
+                if (mGlobalSettings->useVirtualPort)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening virtual OUTPUT port called: " + mGlobalSettings.portName);
-                    midiOut->openVirtualPort(mGlobalSettings.portName);
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("opening virtual OUTPUT port called: " + mGlobalSettings->portName);
+                    midiOut->openVirtualPort(mGlobalSettings->portName);
                 }
                 else
                 {
 #endif
                     // open the selected OUTPUT port
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening OUTPUT port index: " + std::to_string(mGlobalSettings.selectedOutPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings.selectedOutPortIndex));
-                    midiOut->openPort(mGlobalSettings.selectedOutPortIndex);
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("opening OUTPUT port index: " + std::to_string(mGlobalSettings->selectedOutPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings->selectedOutPortIndex));
+                    midiOut->openPort(mGlobalSettings->selectedOutPortIndex);
 #if defined (__APPLE__)
                 }
 #endif
             }
             catch (RtMidiError &error)
             {
-                if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(error.getMessage());
+                if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(error.getMessage());
                 exit(EXIT_FAILURE);
             }
             return true;
         }
-        case Direction::INPUT:
+        case Direction::IN:
         {
             try
             {
@@ -151,22 +197,22 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
                 // don't ignore sysex, timing or active sensing messages
                 midiIn->ignoreTypes(false, false, false);
 #if defined (__APPLE__)
-                if (mGlobalSettings.useVirtualPort)
+                if (mGlobalSettings->useVirtualPort)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening virtual INPUT port called: " + mGlobalSettings.portName);
-                    midiIn->openVirtualPort(mGlobalSettings.portName);
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("opening virtual INPUT port called: " + mGlobalSettings->portName);
+                    midiIn->openVirtualPort(mGlobalSettings->portName);
                 }
                 else
                 {
 #endif
                     // open the selected INPUT port
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("opening INPUT port index: " + std::to_string(mGlobalSettings.selectedInPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings.selectedInPortIndex));
-                    midiIn->openPort(mGlobalSettings.selectedInPortIndex);
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("opening INPUT port index: " + std::to_string(mGlobalSettings->selectedInPortIndex) + " called: " + midiOut->getPortName(mGlobalSettings->selectedInPortIndex));
+                    midiIn->openPort(mGlobalSettings->selectedInPortIndex);
                 }
             }
             catch (RtMidiError &error)
             {
-                if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(error.getMessage());
+                if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(error.getMessage());
                 exit(EXIT_FAILURE);
             }
             return true;
@@ -176,11 +222,14 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
     }
 }
 
-void StreamDeckMidiButton::UpdateTimer()
+void StreamDeckMidiButton::GetMidiInput()
 {
     //
     // Warning: UpdateTimer() is running in the timer thread
     //
+    
+    //deal with midi input
+    /*
     if (midiIn != nullptr)
     {
         if (mConnectionManager != nullptr)
@@ -202,29 +251,29 @@ void StreamDeckMidiButton::UpdateTimer()
                 }
             }
         }
-    }
+    }*/
 }
 
 void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting button settings for " + inContext + ", with action " + inAction);
-    buttonSettings thisButtonSettings;
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting button settings for " + inContext + ", with action " + inAction);
+    ButtonSettings thisButtonSettings;
     
     //should iterate through the JSON payload here and store everything into a struct
     if (inPayload["settings"].find("midiChannel") != inPayload["settings"].end())
     {
         thisButtonSettings.midiChannel = inPayload["settings"]["midiChannel"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiChannel to " + std::to_string(thisButtonSettings.midiChannel));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiChannel to " + std::to_string(thisButtonSettings.midiChannel));
     }
     if (inPayload["settings"].find("midiNote") != inPayload["settings"].end())
     {
         thisButtonSettings.midiNote = inPayload["settings"]["midiNote"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiNote to " + std::to_string(thisButtonSettings.midiNote));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiNote to " + std::to_string(thisButtonSettings.midiNote));
     }
     if (inPayload["settings"].find("midiVelocity") != inPayload["settings"].end())
     {
         thisButtonSettings.midiVelocity = inPayload["settings"]["midiVelocity"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiVelocity to " + std::to_string(thisButtonSettings.midiVelocity));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiVelocity to " + std::to_string(thisButtonSettings.midiVelocity));
     }
     if (inPayload["settings"].find("noteOffParams") != inPayload["settings"].end())
     {
@@ -233,51 +282,64 @@ void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, cons
         int noteOffParams = 0;
         MNO >> noteOffParams;
         thisButtonSettings.noteOffParams = noteOffParams;
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting noteOffParams to " + std::to_string(thisButtonSettings.noteOffParams));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting noteOffParams to " + std::to_string(thisButtonSettings.noteOffParams));
     }
     if (inPayload["settings"].find("midiProgramChange") != inPayload["settings"].end())
     {
         thisButtonSettings.midiProgramChange = inPayload["settings"]["midiProgramChange"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiProgramChange to " + std::to_string(thisButtonSettings.midiProgramChange));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiProgramChange to " + std::to_string(thisButtonSettings.midiProgramChange));
     }
     if (inPayload["settings"].find("midiCC") != inPayload["settings"].end())
     {
         thisButtonSettings.midiCC = inPayload["settings"]["midiCC"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiCC to " + std::to_string(thisButtonSettings.midiCC));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiCC to " + std::to_string(thisButtonSettings.midiCC));
     }
     if (inPayload["settings"].find("midiValue") != inPayload["settings"].end())
     {
         thisButtonSettings.midiValue = inPayload["settings"]["midiValue"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiValue to " + std::to_string(thisButtonSettings.midiValue));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiValue to " + std::to_string(thisButtonSettings.midiValue));
     }
     if (inPayload["settings"].find("midiValueSec") != inPayload["settings"].end())
     {
         thisButtonSettings.midiValueSec = inPayload["settings"]["midiValueSec"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiValueSec to " + std::to_string(thisButtonSettings.midiValueSec));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiValueSec to " + std::to_string(thisButtonSettings.midiValueSec));
     }
     if (inPayload["settings"].find("midiMMC") != inPayload["settings"].end())
     {
         thisButtonSettings.midiMMC = inPayload["settings"]["midiMMC"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting midiMMC to " + std::to_string(thisButtonSettings.midiMMC));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting midiMMC to " + std::to_string(thisButtonSettings.midiMMC));
     }
     if (inPayload["settings"].find("toggleCC") != inPayload["settings"].end())
     {
         thisButtonSettings.toggleCC = inPayload["settings"]["toggleCC"];
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Setting toggleCC to " + std::to_string(thisButtonSettings.toggleCC));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting toggleCC to " + BoolToString(thisButtonSettings.toggleCC));
     }
+    if (inPayload["settings"].find("toggleFade") != inPayload["settings"].end())
+    {
+        thisButtonSettings.toggleFade = inPayload["settings"]["toggleFade"];
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting toggleFade to " + BoolToString(thisButtonSettings.toggleFade));
+    }
+    if (inPayload["settings"].find("fadeTime") != inPayload["settings"].end())
+    {
+        thisButtonSettings.fadeTime = inPayload["settings"]["fadeTime"];
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting fadeTime to " + std::to_string(thisButtonSettings.fadeTime));
+    }
+    if (inPayload["settings"].find("fadeCurve") != inPayload["settings"].end())
+    {
+        thisButtonSettings.fadeCurve = inPayload["settings"]["fadeCurve"];
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Setting fadeCurve to " + std::to_string(thisButtonSettings.fadeCurve));
+    }
+
     
     //store everything into the map
     if (storedButtonSettings.insert(std::make_pair(inContext, thisButtonSettings)).second == false)
     {
         //key already exists, so replace it
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Key already exists - replacing");
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Key already exists - replacing");
         storedButtonSettings[inContext] = thisButtonSettings;
     }
     
-    //if it's an MMC button set the icon
-    if (inAction == SEND_MMC) SetActionIcon(inAction, inContext, inPayload, inDeviceID);
-    
-    if (mGlobalSettings.printDebug)//check it's been stored correctly
+    if (mGlobalSettings->printDebug)//check it's been stored correctly
     {
         //iterate through settings and log messages - should be a way to do this in a loop
         mConnectionManager->LogMessage("midiChannel for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiChannel));
@@ -289,13 +351,31 @@ void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, cons
         mConnectionManager->LogMessage("midiValue for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiValue));
         mConnectionManager->LogMessage("midiValueSec for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiValueSec));
         mConnectionManager->LogMessage("midiMMC for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiMMC));
+        mConnectionManager->LogMessage("toggleCC for " + inContext + " is set to: " + BoolToString(storedButtonSettings[inContext].toggleCC));
+        mConnectionManager->LogMessage("toggleFade for " + inContext + " is set to: " + BoolToString(storedButtonSettings[inContext].toggleFade));
     }
+
+    
+    //if it's an MMC button set the icon
+    if (inAction == SEND_MMC) SetActionIcon(inAction, inContext, inPayload, inDeviceID);
+    
+    if (inAction == SEND_CC_TOGGLE || storedButtonSettings[inContext].toggleFade)//create the fadeSet for the button
+    {
+        FadeSet thisButtonFadeSet(storedButtonSettings[inContext].midiValue, storedButtonSettings[inContext].midiValueSec, storedButtonSettings[inContext].fadeTime, storedButtonSettings[inContext].fadeCurve, mGlobalSettings->sampleInterval);
+        if (storedFadeSettings.insert(std::make_pair(inContext, thisButtonFadeSet)).second == false)
+        {
+            //key already exists, so replace it
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("FadeSet already exists - replacing");
+            storedFadeSettings[inContext] = thisButtonFadeSet;
+        }
+    }
+    
 }
 
 void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
     
-    if (mGlobalSettings.printDebug)
+    if (mGlobalSettings->printDebug)
     {
         mConnectionManager->LogMessage("StreamDeckMidiButton::KeyDownForAction() - dumping the JSON payload:");
         mConnectionManager->LogMessage(inPayload.dump().c_str());//REALLY USEFUL for debugging
@@ -303,7 +383,7 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
     
     if (storedButtonSettings.find(inContext) == storedButtonSettings.end())//something's gone wrong - no settings stored, so the PI probably hasn't been opened
     {
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("No storedButtonSettings - something's gone wrong");
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("No storedButtonSettings - something's gone wrong");
         StoreButtonSettings(inAction, inContext, inPayload, inDeviceID);
     }
 
@@ -311,7 +391,7 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
     {
         if (inAction == SEND_NOTE_ON)
         {
-            if (mGlobalSettings.printDebug)
+            if (mGlobalSettings->printDebug)
             {
                 mConnectionManager->LogMessage("inAction: " + inAction);
                 mConnectionManager->LogMessage("inContext: " + inContext);
@@ -323,13 +403,13 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
             {
                 if (storedButtonSettings[inContext].toggleNoteOnOff)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleNoteOnOff is set to " + BoolToString(storedButtonSettings[inContext].toggleNoteOnOff));
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("toggleNoteOnOff is set to " + BoolToString(storedButtonSettings[inContext].toggleNoteOnOff));
                     SendNoteOn(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiNote, storedButtonSettings[inContext].midiVelocity, storedButtonSettings[inContext].noteOffParams);
                     storedButtonSettings[inContext].toggleNoteOnOff = !storedButtonSettings[inContext].toggleNoteOnOff;
                 }
                 else if (!storedButtonSettings[inContext].toggleNoteOnOff)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleNoteOnOff is set to " + BoolToString(storedButtonSettings[inContext].toggleNoteOnOff));
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("toggleNoteOnOff is set to " + BoolToString(storedButtonSettings[inContext].toggleNoteOnOff));
                     SendNoteOff(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiNote, storedButtonSettings[inContext].midiVelocity);
                     storedButtonSettings[inContext].toggleNoteOnOff = !storedButtonSettings[inContext].toggleNoteOnOff;
                 }
@@ -337,7 +417,7 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
         }
         else if (inAction == SEND_CC)
         {
-            if (mGlobalSettings.printDebug)
+            if (mGlobalSettings->printDebug)
             {
                 mConnectionManager->LogMessage("inAction: " + inAction);
                 mConnectionManager->LogMessage("inContext: " + inContext);
@@ -347,13 +427,13 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
             {
                 if (storedButtonSettings[inContext].toggleCCState)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleCCState is set to " + BoolToString(storedButtonSettings[inContext].toggleCCState));
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("toggleCCState is set to " + BoolToString(storedButtonSettings[inContext].toggleCCState));
                     SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
                     storedButtonSettings[inContext].toggleCCState = !storedButtonSettings[inContext].toggleCCState;
                 }
                 else if (!storedButtonSettings[inContext].toggleCCState)
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("toggleCCState is set to " + BoolToString(storedButtonSettings[inContext].toggleCCState));
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("toggleCCState is set to " + BoolToString(storedButtonSettings[inContext].toggleCCState));
                     SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
                     storedButtonSettings[inContext].toggleCCState = !storedButtonSettings[inContext].toggleCCState;
                 }
@@ -366,42 +446,74 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
         }
         else if (inAction == SEND_CC_TOGGLE)
         {
-            if (mGlobalSettings.printDebug)
+            if (mGlobalSettings->printDebug)
             {
                 mConnectionManager->LogMessage("inAction: " + inAction);
                 mConnectionManager->LogMessage("inContext: " + inContext);
                 if (inPayload.contains("state")) mConnectionManager->LogMessage("we have a state of " + std::to_string(inPayload["state"].get<int>()));
-                if (inPayload.contains("userDefinedState")) mConnectionManager->LogMessage("we have a userDesiredState of " + std::to_string(inPayload["userDesiredState"].get<int>()));
+                if (inPayload.contains("userDesiredState")) mConnectionManager->LogMessage("we have a userDesiredState of " + std::to_string(inPayload["userDesiredState"].get<int>()));
             }
             if (inPayload.contains("state"))
             {
                 if (inPayload.contains("userDesiredState"))
                 {
-                    if (inPayload["userDesiredState"].get<int>() == 0) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
-                    else if (inPayload["userDesiredState"].get<int>() == 1) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                    if (inPayload["userDesiredState"].get<int>() == 0)
+                    {
+                        if (!storedButtonSettings[inContext].toggleFade) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+                        else if (storedButtonSettings[inContext].toggleFade)
+                        {
+                            storedFadeSettings[inContext].currentDirection = Direction::IN;
+                            storedFadeSettings[inContext].fadeActive = true;
+                        }
+                    }
+                    else if (inPayload["userDesiredState"].get<int>() == 1)
+                    {
+                        if (!storedButtonSettings[inContext].toggleFade) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                        else if (storedButtonSettings[inContext].toggleFade)
+                        {
+                            storedFadeSettings[inContext].currentDirection = Direction::OUT;
+                            storedFadeSettings[inContext].fadeActive = true;
+                        }
+                    }
                 }
                 else
                 {
-                    if (inPayload["state"].get<int>() == 0) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
-                    else if (inPayload["state"].get<int>() == 1) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                    if (inPayload["state"].get<int>() == 0)
+                    {
+                        if (!storedButtonSettings[inContext].toggleFade) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValue);
+                        else if (storedButtonSettings[inContext].toggleFade)
+                        {
+                            storedFadeSettings[inContext].currentDirection = Direction::IN;
+                            storedFadeSettings[inContext].fadeActive = true;
+                        }
+                    }
+                    else if (inPayload["state"].get<int>() == 1)
+                    {
+                        if (!storedButtonSettings[inContext].toggleFade) SendCC(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiCC, storedButtonSettings[inContext].midiValueSec);
+                        else if (storedButtonSettings[inContext].toggleFade)
+                        {
+                            storedFadeSettings[inContext].currentDirection = Direction::OUT;
+                            storedFadeSettings[inContext].fadeActive = true;
+                        }
+                    }
                 }
             }
             else mConnectionManager->LogMessage("Something's gone wrong - should have a state, and we don't have");
         }
         else if (inAction == SEND_PROGRAM_CHANGE)
         {
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(inAction);
             SendProgramChange(storedButtonSettings[inContext].midiChannel, storedButtonSettings[inContext].midiProgramChange);
         }
         else if (inAction == SEND_MMC)
         {
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(inAction);
             SendMMC(storedButtonSettings[inContext].midiMMC);
         }
         else
         {
             //something has gone wrong
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Something's gone wrong...");
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Something's gone wrong...");
         }
     }
     catch (std::exception e)
@@ -412,13 +524,13 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
 
 void StreamDeckMidiButton::KeyUpForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::KeyUpForAction()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::KeyUpForAction()");
 
     try
     {
         if (inAction == SEND_NOTE_ON)
         {
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(inAction);
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(inAction);
             
             if (storedButtonSettings[inContext].noteOffParams == 2)//(noteOffParams == 2)
             {
@@ -435,12 +547,12 @@ void StreamDeckMidiButton::KeyUpForAction(const std::string& inAction, const std
 
 void StreamDeckMidiButton::WillAppearForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-    if (!mGlobalSettings.initialSetup)
+    if (!mGlobalSettings->initialSetup)
     {
         mConnectionManager->LogMessage("Requesting global settings from WillAppear");
         mConnectionManager->GetGlobalSettings();
         mConnectionManager->LogMessage("Calling InitialiseMidi()");
-        if (InitialiseMidi(Direction::INPUT))
+        if (InitialiseMidi(Direction::IN))
         {
             mConnectionManager->LogMessage("MIDI input initialised successfully");
         }
@@ -449,7 +561,7 @@ void StreamDeckMidiButton::WillAppearForAction(const std::string& inAction, cons
             mConnectionManager->LogMessage("Something went wrong initialising MIDI input");
             return;
         }
-        if (InitialiseMidi(Direction::OUTPUT))
+        if (InitialiseMidi(Direction::OUT))
         {
             mConnectionManager->LogMessage("MIDI output initialised successfully");
         }
@@ -458,9 +570,9 @@ void StreamDeckMidiButton::WillAppearForAction(const std::string& inAction, cons
             mConnectionManager->LogMessage("Something went wrong initialising MIDI output");
             return;
         }
-        mGlobalSettings.initialSetup = true;
+        mGlobalSettings->initialSetup = true;
     }
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("WillAppearForAction() - setting the storedButtonSettings for button: " + inContext);
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("WillAppearForAction() - setting the storedButtonSettings for button: " + inContext);
     if (inAction == SEND_CC_TOGGLE) mConnectionManager->LogMessage(inPayload.dump().c_str());
     StoreButtonSettings(inAction, inContext, inPayload, inDeviceID);
     
@@ -490,7 +602,7 @@ void StreamDeckMidiButton::DeviceDidDisconnect(const std::string& inDeviceID)
 
 void StreamDeckMidiButton::SendToPlugin(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-    if (mGlobalSettings.printDebug)
+    if (mGlobalSettings->printDebug)
     {
         mConnectionManager->LogMessage("SendToPlugin() callback");
         mConnectionManager->LogMessage(inPayload.dump().c_str());
@@ -503,26 +615,26 @@ void StreamDeckMidiButton::SendToPlugin(const std::string& inAction, const std::
     const auto event = EPLJSONUtils::GetStringByName(inPayload, "event");
     if (event == "getMidiPorts")
     {
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Trying to get list of Output MIDI ports");
-        std::map <std::string, std::string> midiPortList = GetMidiPortList(Direction::OUTPUT);
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiOutPorts"},{"midiOutPortList", midiPortList}}).dump().c_str());
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Trying to get list of Output MIDI ports");
+        std::map <std::string, std::string> midiPortList = GetMidiPortList(Direction::OUT);
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(json({{"event", "midiOutPorts"},{"midiOutPortList", midiPortList}}).dump().c_str());
         mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiOutPorts"},{"midiOutPortList", midiPortList}}));
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiOutPortSelected"},{"midiOutPortSelected", mGlobalSettings.selectedOutPortIndex}}).dump().c_str());
-        mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiOutPortSelected"},{"midiOutPortSelected", mGlobalSettings.selectedOutPortIndex}}));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(json({{"event", "midiOutPortSelected"},{"midiOutPortSelected", mGlobalSettings->selectedOutPortIndex}}).dump().c_str());
+        mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiOutPortSelected"},{"midiOutPortSelected", mGlobalSettings->selectedOutPortIndex}}));
         
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Trying to get list of Input MIDI ports");
-        midiPortList = GetMidiPortList(Direction::INPUT);
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiInPorts"},{"midiInPortList", midiPortList}}).dump().c_str());
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Trying to get list of Input MIDI ports");
+        midiPortList = GetMidiPortList(Direction::IN);
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(json({{"event", "midiInPorts"},{"midiInPortList", midiPortList}}).dump().c_str());
         mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiInPorts"},{"midiInPortList", midiPortList}}));
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage(json({{"event", "midiInPortSelected"},{"midiInPortSelected", mGlobalSettings.selectedInPortIndex}}).dump().c_str());
-        mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiInPortSelected"},{"midiInPortSelected", mGlobalSettings.selectedInPortIndex}}));
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage(json({{"event", "midiInPortSelected"},{"midiInPortSelected", mGlobalSettings->selectedInPortIndex}}).dump().c_str());
+        mConnectionManager->SendToPropertyInspector(inAction, inContext,json({{"event", "midiInPortSelected"},{"midiInPortSelected", mGlobalSettings->selectedInPortIndex}}));
         return;
 
     }
     else
     {
         //something's gone wrong
-        if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("something's gone wrong - not expecting this message to be sent to SendToPlugin()");
+        if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("something's gone wrong - not expecting this message to be sent to SendToPlugin()");
     }
 }
 
@@ -531,12 +643,12 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
     //check to see whether the DEBUG flag is set - should also check whether these have changed
     if (inPayload["settings"].find("printDebug") != inPayload["settings"].end())
     {
-        if (mGlobalSettings.printDebug != inPayload["settings"]["printDebug"])
+        if (mGlobalSettings->printDebug != inPayload["settings"]["printDebug"])
         {
             //printDebug has changed - update
-            mGlobalSettings.printDebug = inPayload["settings"]["printDebug"];
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("mGlobalSettings.printDebug is set to " + BoolToString(mGlobalSettings.printDebug) + " - will print all debug messages");
-            else if (!mGlobalSettings.printDebug) mConnectionManager->LogMessage("mGlobalSettings.printDebug is set to " + BoolToString(mGlobalSettings.printDebug) + " - won't print any debug messages");
+            mGlobalSettings->printDebug = inPayload["settings"]["printDebug"];
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("mGlobalSettings->printDebug is set to " + BoolToString(mGlobalSettings->printDebug) + " - will print all debug messages");
+            else if (!mGlobalSettings->printDebug) mConnectionManager->LogMessage("mGlobalSettings->printDebug is set to " + BoolToString(mGlobalSettings->printDebug) + " - won't print any debug messages");
         }
     }
     
@@ -547,18 +659,18 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
         {
             //not using the virtual port
             mConnectionManager->LogMessage("not using the virtual port - open physical port");
-            mGlobalSettings.useVirtualPort = false;
+            mGlobalSettings->useVirtualPort = false;
             
-            mGlobalSettings.selectedOutPortIndex = inPayload["settings"]["selectedOutPortIndex"];
-            mGlobalSettings.selectedInPortIndex = inPayload["settings"]["selectedInPortIndex"];
-            if (mGlobalSettings.printDebug)
+            mGlobalSettings->selectedOutPortIndex = inPayload["settings"]["selectedOutPortIndex"];
+            mGlobalSettings->selectedInPortIndex = inPayload["settings"]["selectedInPortIndex"];
+            if (mGlobalSettings->printDebug)
             {
-                mConnectionManager->LogMessage("Selected OUTPUT port index is " + std::to_string(mGlobalSettings.selectedOutPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings.selectedOutPortIndex));
-                mConnectionManager->LogMessage("Selected INPUT port index is " + std::to_string(mGlobalSettings.selectedInPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings.selectedInPortIndex));
+                mConnectionManager->LogMessage("Selected OUTPUT port index is " + std::to_string(mGlobalSettings->selectedOutPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings->selectedOutPortIndex));
+                mConnectionManager->LogMessage("Selected INPUT port index is " + std::to_string(mGlobalSettings->selectedInPortIndex) + " & selected port name is " + midiOut->getPortName(mGlobalSettings->selectedInPortIndex));
             }
             
             //reinitialise the midi port here with the correct name
-            if (InitialiseMidi(Direction::INPUT))
+            if (InitialiseMidi(Direction::IN))
             {
                 mConnectionManager->LogMessage("MIDI input re-initialised successfully");
             }
@@ -567,7 +679,7 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
                 mConnectionManager->LogMessage("Something went wrong re-initialising MIDI input");
                 return;
             }
-            if (InitialiseMidi(Direction::OUTPUT))
+            if (InitialiseMidi(Direction::OUT))
             {
                 mConnectionManager->LogMessage("MIDI output re-initialised successfully");
             }
@@ -579,14 +691,14 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
         }
         else if (inPayload["settings"]["useVirtualPort"])//if useVirtualPort has been set to true
         {
-            if (mGlobalSettings.useVirtualPort == inPayload["settings"]["useVirtualPort"])
+            if (mGlobalSettings->useVirtualPort == inPayload["settings"]["useVirtualPort"])
             {
                 //useVirtualPort hasn't changed - has the portName changed?
-                if (mGlobalSettings.portName != inPayload["settings"]["portName"])
+                if (mGlobalSettings->portName != inPayload["settings"]["portName"])
                 {
                     //the portName has changed and we're using the virtual port - reinitialise MIDI with the correct portName
-                    mGlobalSettings.portName = inPayload["settings"]["portName"];
-                    if (InitialiseMidi(Direction::INPUT))
+                    mGlobalSettings->portName = inPayload["settings"]["portName"];
+                    if (InitialiseMidi(Direction::IN))
                     {
                         mConnectionManager->LogMessage("MIDI input re-initialised successfully");
                     }
@@ -595,7 +707,7 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
                         mConnectionManager->LogMessage("Something went wrong re-initialising MIDI input");
                         return;
                     }
-                    if (InitialiseMidi(Direction::OUTPUT))
+                    if (InitialiseMidi(Direction::OUT))
                     {
                         mConnectionManager->LogMessage("MIDI output re-initialised successfully");
                     }
@@ -605,18 +717,18 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
                         return;
                     }
                 }
-                else if (mGlobalSettings.portName == inPayload["settings"]["portName"])
+                else if (mGlobalSettings->portName == inPayload["settings"]["portName"])
                 {
-                    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("Virtual Port name hasn't changed - not re-initialising");
+                    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Virtual Port name hasn't changed - not re-initialising");
                     return;
                 }
             }
-            else if (mGlobalSettings.useVirtualPort != inPayload["settings"]["useVirtualPort"])
+            else if (mGlobalSettings->useVirtualPort != inPayload["settings"]["useVirtualPort"])
             {
                 //useVirtualPort has changed
-                mGlobalSettings.useVirtualPort = true;
+                mGlobalSettings->useVirtualPort = true;
                 //re-initialise MIDI with the virtual port
-                if (InitialiseMidi(Direction::INPUT))
+                if (InitialiseMidi(Direction::IN))
                 {
                     mConnectionManager->LogMessage("MIDI input re-initialised successfully");
                 }
@@ -625,7 +737,7 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
                     mConnectionManager->LogMessage("Something went wrong re-initialising MIDI input");
                     return;
                 }
-                if (InitialiseMidi(Direction::OUTPUT))
+                if (InitialiseMidi(Direction::OUT))
                 {
                     mConnectionManager->LogMessage("MIDI output re-initialised successfully");
                 }
@@ -641,13 +753,13 @@ void StreamDeckMidiButton::DidReceiveGlobalSettings(const json& inPayload)
 
 void StreamDeckMidiButton::DidReceiveSettings(const std::string& inAction, const std::string& inContext, const json& inPayload, const std::string& inDeviceID)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("didReceiveSettings() - setting the storedButtonSettings for button: " + inContext);
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("didReceiveSettings() - setting the storedButtonSettings for button: " + inContext);
     StoreButtonSettings(inAction, inContext, inPayload, inDeviceID);
 }
 
 void StreamDeckMidiButton::SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int noteOffParams)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOn()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOn()");
 
     //Note On message
     std::vector<unsigned char> midiMessage;
@@ -659,16 +771,16 @@ void StreamDeckMidiButton::SendNoteOn(const int midiChannel, const int midiNote,
     switch (noteOffParams)
     {
         case 0: {//no note off message
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("no note off message");
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("no note off message");
             break;
         }
         case PUSH_NOTE_OFF: {//1: {//send note off message immediately
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("send note off immediately");
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("send note off immediately");
             SendNoteOff(midiChannel, midiNote, midiVelocity);
             break;
         }
         case RELEASE_NOTE_OFF: {//2: {//send note off on KeyUp
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("send note off on KeyUp");
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("send note off on KeyUp");
             break;
         }
         default: {
@@ -679,7 +791,7 @@ void StreamDeckMidiButton::SendNoteOn(const int midiChannel, const int midiNote,
 
 void StreamDeckMidiButton::SendNoteOff(const int midiChannel, const int midiNote, const int midiVelocity)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOff()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendNoteOff()");
     
     //Note Off message
     std::vector<unsigned char> midiMessage;
@@ -691,7 +803,7 @@ void StreamDeckMidiButton::SendNoteOff(const int midiChannel, const int midiNote
 
 void StreamDeckMidiButton::SendCC(const int midiChannel, const int midiCC, const int midiValue)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendCC()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendCC()");
     
     //midi CC message
     std::vector<unsigned char> midiMessage;
@@ -703,7 +815,7 @@ void StreamDeckMidiButton::SendCC(const int midiChannel, const int midiCC, const
 
 void StreamDeckMidiButton::SendMMC(const int sendMMC)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendMMC()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendMMC()");
     
     //Note On message
     std::vector<unsigned char> midiMessage;
@@ -719,7 +831,7 @@ void StreamDeckMidiButton::SendMMC(const int sendMMC)
 
 void StreamDeckMidiButton::SendProgramChange(const int midiChannel, const int midiProgramChange)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendProgramChange()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SendProgramChange()");
     
     //midi CC message
     std::vector<unsigned char> midiMessage;
@@ -731,7 +843,7 @@ void StreamDeckMidiButton::SendProgramChange(const int midiChannel, const int mi
 
 void StreamDeckMidiButton::SetActionIcon(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
 {
-    if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SetActionIcon()");
+    if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("StreamDeckMidiButton::SetActionIcon()");
     //get the MMC message
     try
     {
@@ -775,9 +887,9 @@ std::map <std::string, std::string> StreamDeckMidiButton::GetMidiPortList(Direct
 {
     switch (direction)
     {
-        case Direction::OUTPUT:
+        case Direction::OUT:
         {
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("getting OUTPUT port list");
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("getting OUTPUT port list");
             std::map <std::string, std::string> midiPortList;
             std::string portName;
             unsigned int nPorts = midiOut->getPortCount();
@@ -802,7 +914,7 @@ std::map <std::string, std::string> StreamDeckMidiButton::GetMidiPortList(Direct
                 }
             }
             
-            if (mGlobalSettings.printDebug)
+            if (mGlobalSettings->printDebug)
             {
                 std::map<std::string, std::string>::iterator it = midiPortList.begin();
                 while(it != midiPortList.end())
@@ -813,9 +925,9 @@ std::map <std::string, std::string> StreamDeckMidiButton::GetMidiPortList(Direct
             }
             return midiPortList;
         }
-        case Direction::INPUT:
+        case Direction::IN:
         {
-            if (mGlobalSettings.printDebug) mConnectionManager->LogMessage("getting INPUT port list");
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("getting INPUT port list");
             std::map <std::string, std::string> midiPortList;
             std::string portName;
             unsigned int nPorts = midiIn->getPortCount();
@@ -840,7 +952,7 @@ std::map <std::string, std::string> StreamDeckMidiButton::GetMidiPortList(Direct
                 }
             }
             
-            if (mGlobalSettings.printDebug)
+            if (mGlobalSettings->printDebug)
             {
                 std::map<std::string, std::string>::iterator it = midiPortList.begin();
                 while(it != midiPortList.end())
@@ -900,4 +1012,124 @@ std::vector<unsigned char> StreamDeckMidiButton::ReadFile(const char* filename)
                std::istream_iterator<unsigned char>());
 
     return vec;
+}
+
+StreamDeckMidiButton::FadeSet::FadeSet ()
+{
+
+}
+
+StreamDeckMidiButton::FadeSet::FadeSet (const int fromValue, const int toValue, const float fadeTime, const float fadeCurve, const int sampleInterval)
+{
+    //set up the initial values
+    this->fromValue = fromValue;
+    this->toValue = toValue;
+    this->setSize = (fadeTime * (1000 / sampleInterval));
+    this->intervalSize = (fadeTime/setSize);
+    
+    //calculate the look-up tables
+    if (fadeCurve == 0)
+    {
+        // create a vector of length setSize
+        std::vector<float> set(setSize);
+        
+        // now assign the values to the vector
+        for (int i = 0; i < setSize + 1; i++)
+            {
+                 set[i] = (float)fromValue + i * ( ((float)toValue - (float)fromValue) / setSize);
+            }
+        this->inSet = set;
+        this->inPrevValue = (fromValue - 1);
+        
+        for (int i = 0; i < setSize + 1; i++)
+        {
+             set[i] = (float)toValue + i * ( ((float)fromValue - (float)toValue) / setSize);
+        }
+        this->outSet = set;
+        this->outPrevValue = (toValue + 1);
+    }
+    else
+    {
+        // create a vector of length setSize
+        std::vector<float> set(setSize);
+        
+        // now assign the values to the vector
+        for (int i = 0; i < setSize + 1; i++)
+            {
+                 set[i] = fromValue + (
+                                        (toValue - fromValue) *
+                                            (exp(fadeCurve*(i*intervalSize))-1) /
+                                            (exp(fadeCurve * (setSize * intervalSize))-1)
+                                    );
+            }
+        this->inSet = set;
+        this->inPrevValue = (fromValue - 1);
+        for (int i = 0; i < setSize + 1; i++)
+        {
+             set[i] = toValue + (
+                                    (fromValue - toValue) *
+                                        (exp(fadeCurve*(i*intervalSize))-1) /
+                                        (exp(fadeCurve * (setSize * intervalSize))-1)
+                                );
+        }
+        this->outSet = set;
+        this->outPrevValue = (toValue + 1);
+    }
+}
+
+bool StreamDeckMidiButton::FadeSet::UpdateFade()
+{
+    if (this->fadeActive && this->currentDirection == Direction::IN)
+    {
+        if (this->currentIndex == this->setSize)
+        {
+            this->currentIndex = 0;//reset the currentIndex of the fadeSet
+            this->inPrevValue = (this->fromValue - 1);//reset inPrevValue
+            this->currentValue = this->toValue;
+            //std::cout << this->toValue << std::endl;
+            this->fadeActive = false;
+            this->fadeFinished = true;
+            return true;
+        }
+        else if (this->inPrevValue != floor(this->inSet[this->currentIndex]))
+        {
+            this->currentValue = floor(this->inSet[this->currentIndex]);
+            //std::cout << floor(this->inSet[this->currentIndex]) << std::endl;
+            this->inPrevValue = floor(this->inSet[this->currentIndex]);
+            this->currentIndex++;
+            return true;
+        }
+        else
+        {
+            this->currentIndex++;
+            return false;
+        }
+    }
+    else if (this->fadeActive && this->currentDirection == Direction::OUT)
+    {
+        if (this->currentIndex == this->setSize)
+        {
+            this->currentIndex = 0;//reset the currentIndex of the fadeSet
+            this->outPrevValue = (this->toValue + 1);//reset outPrevValue
+            //std::cout << this->fromValue << std::endl;
+            this->currentValue = this->fromValue;
+            this->fadeActive = false;
+            this->fadeFinished = true;
+            return true;
+        }
+        else if (this->outPrevValue != ceil(this->outSet[this->currentIndex]))
+        {
+            //std::cout << ceil(this->outSet[this->currentIndex]) << std::endl;
+            this->currentValue = ceil(this->outSet[this->currentIndex]);
+            this->outPrevValue = ceil(this->outSet[this->currentIndex]);
+            this->currentIndex++;
+            return true;
+        }
+        else
+        {
+            this->currentIndex++;
+            return false;
+        }
+    }
+    return false;
 }

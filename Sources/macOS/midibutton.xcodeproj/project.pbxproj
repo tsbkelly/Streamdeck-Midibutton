@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B34D5CAC24309CAA009B7CD9 /* pi.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = B34D5CAB24309C5E009B7CD9 /* pi.js */; };
+		B34D5CAC24309CAA009B7CD9 /* pi_mac.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = B34D5CAB24309C5E009B7CD9 /* pi_mac.js */; };
 		B38C4D7623C4DB88003CA800 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAE515DC215238E400FAF824 /* main.cpp */; };
 		B38F465123C4BE56002CC72A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38F465023C4BE56002CC72A /* RtMidi.cpp */; };
 		B3B7A1AA2431FE6800F0DEAC /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = B39BB35C242525A3002D4BD9 /* manifest.json */; };
@@ -40,7 +40,7 @@
 			dstPath = "Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector/js";
 			dstSubfolderSpec = 0;
 			files = (
-				B34D5CAC24309CAA009B7CD9 /* pi.js in CopyFiles */,
+				B34D5CAC24309CAA009B7CD9 /* pi_mac.js in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,7 +58,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		B34D5CAB24309C5E009B7CD9 /* pi.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi.js; sourceTree = "<group>"; };
+		B34D5CAB24309C5E009B7CD9 /* pi_mac.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi_mac.js; sourceTree = "<group>"; };
 		B38F464F23C4BE56002CC72A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../RtMidi.h; sourceTree = "<group>"; };
 		B38F465023C4BE56002CC72A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../RtMidi.cpp; sourceTree = "<group>"; };
 		B39BB35B242525A3002D4BD9 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
@@ -74,6 +74,7 @@
 		B3B8068523E1D9570065152F /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
 		B3B8068723E1D9570065152F /* sdpi.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
 		B3B8068923E1D9570065152F /* common.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
+		B3C470802433761F00E79A77 /* pi_win.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi_win.js; sourceTree = "<group>"; };
 		B3DEB70E23E8A4B8007FFFF6 /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../base64.h; sourceTree = "<group>"; };
 		B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../base64.cpp; sourceTree = "<group>"; };
 		B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
@@ -150,7 +151,8 @@
 			isa = PBXGroup;
 			children = (
 				B3B8068923E1D9570065152F /* common.js */,
-				B34D5CAB24309C5E009B7CD9 /* pi.js */,
+				B34D5CAB24309C5E009B7CD9 /* pi_mac.js */,
+				B3C470802433761F00E79A77 /* pi_win.js */,
 			);
 			path = js;
 			sourceTree = "<group>";
