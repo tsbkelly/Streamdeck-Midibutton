@@ -353,23 +353,34 @@ void StreamDeckMidiButton::StoreButtonSettings(const std::string& inAction, cons
         mConnectionManager->LogMessage("midiMMC for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].midiMMC));
         mConnectionManager->LogMessage("toggleCC for " + inContext + " is set to: " + BoolToString(storedButtonSettings[inContext].toggleCC));
         mConnectionManager->LogMessage("toggleFade for " + inContext + " is set to: " + BoolToString(storedButtonSettings[inContext].toggleFade));
+        mConnectionManager->LogMessage("fadeTime for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].fadeTime));
+        mConnectionManager->LogMessage("fadeCurve for " + inContext + " is set to: " + std::to_string(storedButtonSettings[inContext].fadeCurve));
     }
 
     
     //if it's an MMC button set the icon
     if (inAction == SEND_MMC) SetActionIcon(inAction, inContext, inPayload, inDeviceID);
     
-    if (inAction == SEND_CC_TOGGLE || storedButtonSettings[inContext].toggleFade)//create the fadeSet for the button
+    //if it's a CC Toggle button generate the fadeSet, if required
+    if (storedButtonSettings[inContext].toggleFade)//create the fadeSet for the button
     {
-        FadeSet thisButtonFadeSet(storedButtonSettings[inContext].midiValue, storedButtonSettings[inContext].midiValueSec, storedButtonSettings[inContext].fadeTime, storedButtonSettings[inContext].fadeCurve, mGlobalSettings->sampleInterval);
-        if (storedFadeSettings.insert(std::make_pair(inContext, thisButtonFadeSet)).second == false)
+        if (storedButtonSettings[inContext].fadeTime == 0)
         {
-            //key already exists, so replace it
-            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("FadeSet already exists - replacing");
-            storedFadeSettings[inContext] = thisButtonFadeSet;
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("We have a fadeTime of 0! - divide by zero error, so ignoring by switching toggleFade off");
+            storedButtonSettings[inContext].toggleFade = false; //to avoid divide by zero problem
+        }
+        else
+        {
+            if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("Generating the fade lookup table");
+            FadeSet thisButtonFadeSet(storedButtonSettings[inContext].midiValue, storedButtonSettings[inContext].midiValueSec, storedButtonSettings[inContext].fadeTime, storedButtonSettings[inContext].fadeCurve, mGlobalSettings->sampleInterval);
+            if (storedFadeSettings.insert(std::make_pair(inContext, thisButtonFadeSet)).second == false)
+            {
+                //key already exists, so replace it
+                if (mGlobalSettings->printDebug) mConnectionManager->LogMessage("FadeSet already exists - replacing");
+                storedFadeSettings[inContext] = thisButtonFadeSet;
+            }
         }
     }
-    
 }
 
 void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const std::string& inContext, const json &inPayload, const std::string& inDeviceID)
