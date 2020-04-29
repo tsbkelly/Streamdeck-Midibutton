@@ -23,6 +23,7 @@
 // namespace
 namespace {
 const char* SEND_NOTE_ON = "uk.co.clarionmusic.midibutton.noteon";
+const char* SEND_NOTE_ON_TOGGLE = "uk.co.clarionmusic.midibutton.noteontoggle";
 const char* SEND_CC = "uk.co.clarionmusic.midibutton.cc";
 const char* SEND_CC_TOGGLE = "uk.co.clarionmusic.midibutton.cctoggle";
 const char* SEND_MMC = "uk.co.clarionmusic.midibutton.mmc";
@@ -81,8 +82,9 @@ private:
     std::map<std::string, std::string> GetMidiPortList(Direction direction);
     
     void GetMidiInput();
+    void UpdateTimer();
     
-    void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int sendNoteOff);
+    void SendNoteOn(const int midiChannel, const int midiNote, const int midiVelocity, const int sendNoteOff = 0);
     void SendNoteOff(const int midiChannel, const int midiNote, const int midiVelocity);
     void SendProgramChange(const int midiChannel, const int midiProgramChange);
     void SendCC(const int midiChannel, const int midiCC, const int midiValue);
@@ -101,7 +103,7 @@ private:
         int selectedOutPortIndex = 0;
         int selectedInPortIndex = 0;
         bool useVirtualPort = false;
-        bool printDebug = false;
+        bool printDebug = true;
         bool initialSetup = false;
         int sampleInterval = 1;
     };
@@ -112,7 +114,7 @@ private:
         int midiChannel = 1;
         int midiNote = 0;
         int midiVelocity = 1;
-        int noteOffParams = 0;
+        int noteOffMode = 0;
         bool toggleNoteOnOff = true;
         
         //programChange settings
@@ -123,11 +125,13 @@ private:
         int midiValue = 0;
         int midiValueSec = 0;
         
+        //state settings for multiaction buttons
         bool state = false;
         
-        bool toggleCC = true;
-        bool toggleCCState = true;
+        //mode for CC buttons
+        int ccMode = 0;
         
+        //initial fade values - used to calculate the fade sets when necessary
         bool toggleFade = false;
         float fadeTime = 0;
         float fadeCurve = 0;
@@ -139,17 +143,17 @@ private:
     
     struct FadeSet {
         public:
-            bool fadeActive = false;
-            bool fadeFinished = false;
-            std::vector<float> inSet;
-            std::vector<float> outSet;
-            Direction currentDirection;
+            bool fadeActive = false; //is the fade active
+            bool fadeFinished = false; //is the fade finished - if so, send a green tick to the SD
             int currentValue = 0;
-            //FadeSet (const int fromValue, const int toValue, const int setSize, const float intervalSize, const float fadeCurve);
+            Direction currentDirection;
             FadeSet ();
             FadeSet (const int fromValue, const int toValue, const float fadeTime, const float fadeCurve, const int sampleInterval);
             bool UpdateFade();
+            void ReverseFade();
         private:
+            std::vector<float> inSet;
+            std::vector<float> outSet;
             int setSize = 0;
             int fromValue = 0;
             int toValue = 0;
@@ -157,6 +161,7 @@ private:
             int inPrevValue = 0;
             int outPrevValue = 0;
             float intervalSize = 0;
+            bool reverseFade = false;
     };
     
     //PortSettings stored globally
@@ -165,13 +170,15 @@ private:
     std::mutex mVisibleContextsMutex;
 	std::set<std::string> mVisibleContexts;
     
-    RtMidiOut *midiOut;
-    RtMidiIn *midiIn;
+    RtMidiOut *midiOut = nullptr;
+    RtMidiIn *midiIn = nullptr;
     
     CallBackTimer *mTimer;
     
     std::map<std::string, ButtonSettings> storedButtonSettings;
     std::map<std::string, FadeSet> storedFadeSettings;
+    
+    std::once_flag initialSetup;
 };
 
 

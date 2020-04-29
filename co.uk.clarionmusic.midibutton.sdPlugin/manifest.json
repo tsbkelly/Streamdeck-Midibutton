@@ -15,6 +15,27 @@
             "UUID": "uk.co.clarionmusic.midibutton.noteon"
         },
         {
+            "Icon": "midibuttonnote",
+            "Name": "MIDI Note Toggle",
+            "States": [
+                {
+                    "Name": "On",
+                    "Image": "midibuttonnote",
+                    "TitleAlignment": "middle",
+                    "FontSize": "17"
+                },
+                {
+                    "Name": "Off",
+                    "Image": "midibuttonnote",
+                    "TitleAlignment": "middle",
+                    "FontSize": "17"
+                }
+            ],
+            "SupportedInMultiActions": true,
+            "Tooltip": "Toggle a MIDI Note On (and Off) message",
+            "UUID": "uk.co.clarionmusic.midibutton.noteontoggle"
+        },
+        {
             "Icon": "midibuttoncc",
             "Name": "MIDI CC",
             "States": [
@@ -44,7 +65,6 @@
                     "TitleAlignment": "middle",
                     "FontSize": "17"
                 }
-
             ],
             "SupportedInMultiActions": true,
             "Tooltip": "Toggle a MIDI CC message",
@@ -89,7 +109,7 @@
     "Name": "Midi Button",
     "Icon": "midibuttonnote",
     "URL": "",
-    "Version": "1.04",
+    "Version": "1.05",
     "OS": [
         {
             "Platform": "mac",

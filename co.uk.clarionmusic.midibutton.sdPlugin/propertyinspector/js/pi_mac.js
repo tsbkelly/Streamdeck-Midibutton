@@ -28,7 +28,7 @@ function connected(jsonObj)
     //create and set the HTML of the property inspector here
     if (actionInfo == "uk.co.clarionmusic.midibutton.noteon")
     {
-        document.getElementById("messageSettingsDiv").innerHTML = `
+        document.getElementById("messageSettingsDiv").insertAdjacentHTML('beforeend', `
             <div type="select" class="sdpi-item" id="midiChannelDiv">
                 <div class="sdpi-item-label">Midi Channel</div>
                 <select class="sdpi-item-value" id="midiChannel" onchange="saveSettings()">
@@ -58,20 +58,56 @@ function connected(jsonObj)
                 <div class="sdpi-item-label">MIDI Velocity</div>
                     <input type="number" min="0" max="127" class="sdpi-item-value" id="midiVelocity" value="" onchange="saveSettings()">
             </div>
-            <div type="select" class="sdpi-item" id="noteOffParamsDiv">
+            <div type="select" class="sdpi-item" id="noteOffModeDiv">
                 <div class="sdpi-item-label">Note Off Behaviour</div>
-                <select class="sdpi-item-value" id="noteOffParams" onchange="saveSettings()">
+                <select class="sdpi-item-value" id="noteOffMode" onchange="saveSettings()">
                     <option value="0">No Note Off</option>
                     <option value="1">On Push</option>
                     <option value="2">On Release</option>
-                    <option value="3">Toggle</option>
                 </select>
             </div>
-            `;
+            `);
         document.getElementById("midiChannel").value = settings.midiChannel || 1;
         document.getElementById("midiNote").value = settings.midiNote || 0;
         document.getElementById("midiVelocity").value = settings.midiVelocity || 1;
-        document.getElementById("noteOffParams").value = settings.noteOffParams || 0;
+        document.getElementById("noteOffMode").value = settings.noteOffMode || 0;
+    }
+    else if (actionInfo == "uk.co.clarionmusic.midibutton.noteontoggle")
+    {
+        document.getElementById("messageSettingsDiv").insertAdjacentHTML('beforeend', `
+            <div type="select" class="sdpi-item" id="midiChannelDiv">
+                <div class="sdpi-item-label">Midi Channel</div>
+                <select class="sdpi-item-value" id="midiChannel" onchange="saveSettings()">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                    <option value="14">14</option>
+                    <option value="15">15</option>
+                    <option value="16">16</option>
+                </select>
+            </div>
+            <div class="sdpi-item" id="midiNoteDiv">
+                <div class="sdpi-item-label">MIDI Note</div>
+                    <input type="number" min="0" max="127" class="sdpi-item-value" id="midiNote" value="" onchange="saveSettings()">
+            </div>
+            <div class="sdpi-item" id="midiVelocityDiv">
+                <div class="sdpi-item-label">MIDI Velocity</div>
+                    <input type="number" min="0" max="127" class="sdpi-item-value" id="midiVelocity" value="" onchange="saveSettings()">
+            </div>
+            `);
+        document.getElementById("midiChannel").value = settings.midiChannel || 1;
+        document.getElementById("midiNote").value = settings.midiNote || 0;
+        document.getElementById("midiVelocity").value = settings.midiVelocity || 1;
     }
     else if (actionInfo == "uk.co.clarionmusic.midibutton.cc")
     {
@@ -231,26 +267,30 @@ function connected(jsonObj)
                     <option value="127">Poly Operation</option>
                 </select>
             </div>
+            <div type="select" class="sdpi-item" id="ccModeDiv">
+                <div class="sdpi-item-label">Mode</div>
+                <select class="sdpi-item-value" id="ccMode" onchange="saveSettings()">
+                    <option value="0">Single Value</option>
+                    <option value="1">Momentary Value</option>
+                    <option value="2">Momentary with Fade In</option>
+                    <option value="3">Momentary with Fade Out</option>
+                </select>
+            </div>
             <div class="sdpi-item" id="midiValueDiv">
                 <div class="sdpi-item-label">Main CC Value</div>
                     <input type="number" min="0" max="127" class="sdpi-item-value" id="midiValue" value="" onchange="saveSettings()">
             </div>
-            <div class="sdpi-item" id="midiValueSecDiv" style="display:none">
+            <div class="sdpi-item" id="midiValueSecDiv">
                 <div class="sdpi-item-label">Secondary CC Value</div>
                     <input type="number" min="0" max="127" class="sdpi-item-value" id="midiValueSec" value="" onchange="saveSettings()">
             </div>
-            <div class="sdpi-item" id="directionDiv" style="display:none">
-                <div class="sdpi-item-label">Fade Direction</div>
-                    <input type="number" min="0" max="127" class="sdpi-item-value" id="fadeDirection" value="" onchange="saveSettings()">
+            <div class="sdpi-item" id="fadeTimeDiv">
+                <div class="sdpi-item-label">Fade Time (secs.)</div>
+                <input type="number" step="0.1" min="0" max="360" class="sdpi-item-value" id="fadeTime" value="1" onchange="saveSettings()">
             </div>
-            <div type="checkbox" class="sdpi-item" id="toggle">
-                <div class="sdpi-item-label">Toggle CC</div>
-                <div class="sdpi-item-value min100">
-                    <div class="sdpi-item-child">
-                        <input class="sdpi-item-value" id="toggleCC" type="checkbox" onchange="saveSettings()">
-                        <label for="toggleCC"><span></span></label>
-                    </div>
-                </div>
+            <div class="sdpi-item" id="fadeCurveDiv">
+                <div class="sdpi-item-label">Fade Curve</div>
+                <input type="number" step="0.1" min="-5" max="5" class="sdpi-item-value" id="fadeCurve" value="" onchange="saveSettings()">
             </div>
         </div>
         `;
@@ -258,10 +298,32 @@ function connected(jsonObj)
         document.getElementById("midiCC").value = settings.midiCC || 0;
         document.getElementById("midiValue").value = settings.midiValue || 0;
         document.getElementById("midiValueSec").value = settings.midiValueSec || 0;
-        document.getElementById("toggleCC").checked = settings.toggleCC;
-        document.getElementById("midiValueSecDiv").style.display = document.getElementById("toggleCC").checked ? "" : "none";
-        document.getElementById("midiValueSecDiv").style.display = document.getElementById("toggleCC").checked ? "" : "none";
-    }
+        document.getElementById("ccMode").value = settings.ccMode || 0;
+        document.getElementById("fadeTime").value = settings.fadeTime || 1;
+        document.getElementById("fadeCurve").value = settings.fadeCurve || 0;
+        switch (document.getElementById("ccMode").value)
+        {
+            case "0":
+                document.getElementById("midiValueSecDiv").style.display = "none";
+                document.getElementById("fadeTimeDiv").style.display = "none";
+                document.getElementById("fadeCurveDiv").style.display = "none";
+                break;
+            case "1":
+                document.getElementById("midiValueSecDiv").style.display = "";
+                document.getElementById("fadeTimeDiv").style.display = "none";
+                document.getElementById("fadeCurveDiv").style.display = "none";
+                break;
+            case "2": case "3":
+                document.getElementById("midiValueSecDiv").style.display = "";
+                document.getElementById("fadeTimeDiv").style.display = "";
+                document.getElementById("fadeCurveDiv").style.display = "";
+                break;
+            default:
+                document.getElementById("midiValueSecDiv").style.display = "none";
+                document.getElementById("fadeTimeDiv").style.display = "none";
+                document.getElementById("fadeCurveDiv").style.display = "none";
+                break;
+        }    }
     else if (actionInfo == "uk.co.clarionmusic.midibutton.cctoggle")
     {
         document.getElementById("messageSettingsDiv").insertAdjacentHTML('beforeend', `
@@ -421,15 +483,15 @@ function connected(jsonObj)
                 </select>
             </div>
             <div class="sdpi-item" id="midiValueDiv">
-                <div class="sdpi-item-label">Off CC Value</div>
+                <div class="sdpi-item-label">Main CC Value</div>
                     <input type="number" min="0" max="127" class="sdpi-item-value" id="midiValue" value="" onchange="saveSettings()">
             </div>
             <div class="sdpi-item" id="midiValueSecDiv">
-                <div class="sdpi-item-label">On CC Value</div>
+                <div class="sdpi-item-label">Secondary CC Value</div>
                     <input type="number" min="0" max="127" class="sdpi-item-value" id="midiValueSec" value="" onchange="saveSettings()">
             </div>
-            <div type="checkbox" class="sdpi-item" id="toggle">
-                <div class="sdpi-item-label">Toggle Fade</div>
+            <div type="checkbox" class="sdpi-item" id="toggleFadeDiv">
+                <div class="sdpi-item-label">Fade Between States</div>
                 <div class="sdpi-item-value min100">
                     <div class="sdpi-item-child">
                         <input class="sdpi-item-value" id="toggleFade" type="checkbox" onchange="saveSettings()">
@@ -439,11 +501,11 @@ function connected(jsonObj)
             </div>
             <div class="sdpi-item" id="fadeTimeDiv" style="display:none">
                 <div class="sdpi-item-label">Fade Time (secs.)</div>
-                    <input type="number" step="0.1" min="0" max="360" class="sdpi-item-value" id="fadeTime" value="" onchange="saveSettings()">
+                <input type="number" step="0.1" min="0" max="360" class="sdpi-item-value" id="fadeTime" value="1" onchange="saveSettings()">
             </div>
             <div class="sdpi-item" id="fadeCurveDiv" style="display:none">
                 <div class="sdpi-item-label">Fade Curve</div>
-                    <input type="number" step="0.1" min="-5" max="5" class="sdpi-item-value" id="fadeCurve" value="" onchange="saveSettings()">
+                <input type="number" step="0.1" min="-5" max="5" class="sdpi-item-value" id="fadeCurve" value="" onchange="saveSettings()">
             </div>
         </div>
         `);
@@ -452,8 +514,8 @@ function connected(jsonObj)
         document.getElementById("midiValue").value = settings.midiValue || 0;
         document.getElementById("midiValueSec").value = settings.midiValueSec || 0;
         document.getElementById("toggleFade").checked = settings.toggleFade || 0;
-        document.getElementById("fadeTime").value = settings.fadeTime;
-        document.getElementById("fadeCurve").value = settings.fadeCurve;
+        document.getElementById("fadeTime").value = settings.fadeTime || 1;
+        document.getElementById("fadeCurve").value = settings.fadeCurve || 0;
         document.getElementById("fadeTimeDiv").style.display = document.getElementById("toggleFade").checked ? "" : "none";
         document.getElementById("fadeCurveDiv").style.display = document.getElementById("toggleFade").checked ? "" : "none";
     }
@@ -616,42 +678,70 @@ function saveSettings()
     //save settings here
     if (actionInfo == "uk.co.clarionmusic.midibutton.noteon")
     {
-        settings.midiChannel = +document.getElementById("midiChannel").value;
-        settings.midiNote = +document.getElementById("midiNote").value;
-        settings.midiVelocity = +document.getElementById("midiVelocity").value;
-        settings.noteOffParams = document.getElementById("noteOffParams").value;
+        settings.midiChannel = parseInt(document.getElementById("midiChannel").value);
+        settings.midiNote = parseInt(document.getElementById("midiNote").value);
+        settings.midiVelocity = parseInt(document.getElementById("midiVelocity").value);
+        settings.noteOffMode = parseInt(document.getElementById("noteOffMode").value);
     }
-    if (actionInfo == "uk.co.clarionmusic.midibutton.programchange")
+    else if (actionInfo == "uk.co.clarionmusic.midibutton.noteontoggle")
     {
-        settings.midiChannel = +document.getElementById("midiChannel").value;
-        settings.midiProgramChange = +document.getElementById("midiProgramChange").value;
+        settings.midiChannel = parseInt(document.getElementById("midiChannel").value);
+        settings.midiNote = parseInt(document.getElementById("midiNote").value);
+        settings.midiVelocity = parseInt(document.getElementById("midiVelocity").value);
     }
-    if (actionInfo == "uk.co.clarionmusic.midibutton.cc")
+    else if (actionInfo == "uk.co.clarionmusic.midibutton.programchange")
     {
-        settings.midiChannel = +document.getElementById("midiChannel").value;
-        settings.midiCC = +document.getElementById("midiCC").value;
-        settings.midiValue = +document.getElementById("midiValue").value;
-        settings.midiValueSec = +document.getElementById("midiValueSec").value;
-        settings.toggleCC = document.getElementById("toggleCC").checked;
-        document.getElementById("midiValueSecDiv").style.display = document.getElementById("toggleCC").checked ? "" : "none";
+        settings.midiChannel = parseInt(document.getElementById("midiChannel").value);
+        settings.midiProgramChange = parseInt(document.getElementById("midiProgramChange").value);
     }
-    if (actionInfo == "uk.co.clarionmusic.midibutton.cctoggle")
+    else if (actionInfo == "uk.co.clarionmusic.midibutton.cc")
     {
-        console.log("got here");
-        settings.midiChannel = +document.getElementById("midiChannel").value;
-        settings.midiCC = +document.getElementById("midiCC").value;
-        settings.midiValue = +document.getElementById("midiValue").value;
-        settings.midiValueSec = +document.getElementById("midiValueSec").value;
+        settings.midiChannel = parseInt(document.getElementById("midiChannel").value);
+        settings.midiCC = parseInt(document.getElementById("midiCC").value);
+        settings.midiValue = parseInt(document.getElementById("midiValue").value);
+        settings.midiValueSec = parseInt(document.getElementById("midiValueSec").value);
+        settings.ccMode = parseInt(document.getElementById("ccMode").value);
         settings.fadeTime = parseFloat(document.getElementById("fadeTime").value);
         settings.fadeCurve = parseFloat(document.getElementById("fadeCurve").value);
-        //console.log("fadeTime is set to " + parseFloat(document.getElementById("fadeTime").value));
+        switch (document.getElementById("ccMode").value)
+        {
+            case "0":
+                document.getElementById("midiValueSecDiv").style.display = "none";
+                document.getElementById("fadeTimeDiv").style.display = "none";
+                document.getElementById("fadeCurveDiv").style.display = "none";
+                break;
+            case "1":
+                document.getElementById("midiValueSecDiv").style.display = "";
+                document.getElementById("fadeTimeDiv").style.display = "none";
+                document.getElementById("fadeCurveDiv").style.display = "none";
+                break;
+            case "2": case "3":
+                document.getElementById("midiValueSecDiv").style.display = "";
+                document.getElementById("fadeTimeDiv").style.display = "";
+                document.getElementById("fadeCurveDiv").style.display = "";
+                break;
+            default:
+                document.getElementById("midiValueSecDiv").style.display = "none";
+                document.getElementById("fadeTimeDiv").style.display = "none";
+                document.getElementById("fadeCurveDiv").style.display = "none";
+                break;
+        }
+    }
+    else if (actionInfo == "uk.co.clarionmusic.midibutton.cctoggle")
+    {
+        settings.midiChannel = parseInt(document.getElementById("midiChannel").value);
+        settings.midiCC = parseInt(document.getElementById("midiCC").value);
+        settings.midiValue = parseInt(document.getElementById("midiValue").value);
+        settings.midiValueSec = parseInt(document.getElementById("midiValueSec").value);
+        settings.fadeTime = parseFloat(document.getElementById("fadeTime").value);
+        settings.fadeCurve = parseFloat(document.getElementById("fadeCurve").value);
         settings.toggleFade = document.getElementById("toggleFade").checked;
         document.getElementById("fadeTimeDiv").style.display = document.getElementById("toggleFade").checked ? "" : "none";
         document.getElementById("fadeCurveDiv").style.display = document.getElementById("toggleFade").checked ? "" : "none";
     }
-    if (actionInfo == "uk.co.clarionmusic.midibutton.mmc")
+    else if (actionInfo == "uk.co.clarionmusic.midibutton.mmc")
     {
-        settings.midiMMC = +document.getElementById("midiMMC").value;
+        settings.midiMMC = parseInt(document.getElementById("midiMMC").value);
         //set the icon of the action to the correct image
         $SD.api.sendToPlugin(uuid, actionInfo, {midiMMC: settings.midiMMC});
     }
