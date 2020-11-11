@@ -15,7 +15,8 @@
 #include "ESDLocalizer.h"
 #include "EPLJSONUtils.h"
 
-RtMidiOut *midiOut;
+//RtMidiOut *midiOut;
+RtMidiIn *midiIn = new RtMidiIn;
 
 int main(int argc, const char* const argv[])
 {
@@ -79,7 +80,7 @@ int main(int argc, const char* const argv[])
 
     // Create the plugin
     StreamDeckMidiButton *plugin = new StreamDeckMidiButton();
-
+    
     // Initialize localization helper
     std::string language = "en";
     
@@ -101,7 +102,7 @@ int main(int argc, const char* const argv[])
 
     // Create the connection manager
     ESDConnectionManager *connectionManager = new ESDConnectionManager(port, pluginUUID, registerEvent, info, plugin);
-        
+    
     // Connect and start the event loop
     connectionManager->Run();
 

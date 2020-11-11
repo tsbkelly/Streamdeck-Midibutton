@@ -66,7 +66,7 @@ void ESDConnectionManager::OnMessage(
   if (
     inMsg != NULL && inMsg->get_opcode() == websocketpp::frame::opcode::text) {
     std::string message = inMsg->get_payload();
-
+  
     try {
       json receivedJson = json::parse(message);
 

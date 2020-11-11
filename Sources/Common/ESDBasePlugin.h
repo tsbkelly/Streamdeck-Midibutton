@@ -74,6 +74,7 @@ class ESDBasePlugin {
     const std::string& inDevice)
     = 0;
 
+    bool isInitialised = false;
  protected:
   ESDConnectionManager* mConnectionManager = nullptr;
 };

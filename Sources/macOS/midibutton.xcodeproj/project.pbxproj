@@ -75,10 +75,13 @@
 		B3B8068723E1D9570065152F /* sdpi.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
 		B3B8068923E1D9570065152F /* common.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
 		B3C470802433761F00E79A77 /* pi_win.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi_win.js; sourceTree = "<group>"; };
+		B3DB72BF2559D687002A7FB5 /* timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = timer.h; sourceTree = "<group>"; };
 		B3DEB70E23E8A4B8007FFFF6 /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../base64.h; sourceTree = "<group>"; };
 		B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../base64.cpp; sourceTree = "<group>"; };
 		B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
 		B3E0518223C4E1AE0077DB3F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		B3E742C32559831800C9FFD6 /* timer.h.old */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = timer.h.old; sourceTree = "<group>"; };
+		B3E742C42559831A00C9FFD6 /* event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event.h; sourceTree = "<group>"; };
 		FA7455FA215E788C000F47D3 /* ESDLocalizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ESDLocalizer.cpp; sourceTree = "<group>"; };
 		FA7455FB215E788C000F47D3 /* ESDLocalizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESDLocalizer.h; sourceTree = "<group>"; };
 		FA7455FC215E788C000F47D3 /* ESDUtilitiesMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ESDUtilitiesMac.cpp; sourceTree = "<group>"; };
@@ -175,7 +178,10 @@
 				FA87319D2151378300B8F323 /* StreamDeckMidiButton.h */,
 				FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */,
 				B38F465023C4BE56002CC72A /* RtMidi.cpp */,
+				B3E742C42559831A00C9FFD6 /* event.h */,
+				B3E742C32559831800C9FFD6 /* timer.h.old */,
 				B38F464F23C4BE56002CC72A /* RtMidi.h */,
+				B3DB72BF2559D687002A7FB5 /* timer.h */,
 				B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */,
 				B3DEB70E23E8A4B8007FFFF6 /* base64.h */,
 				FAF9B00921511D3E007E00F8 /* Common */,
@@ -410,6 +416,7 @@
 		FABD3D202151193300D30B0C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
@@ -418,6 +425,7 @@
 		FABD3D212151193300D30B0C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CODE_SIGN_STYLE = Automatic;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};

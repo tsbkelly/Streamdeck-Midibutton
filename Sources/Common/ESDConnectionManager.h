@@ -81,4 +81,5 @@ class ESDConnectionManager {
   websocketpp::connection_hdl mConnectionHandle;
   WebsocketClient mWebsocket;
   ESDBasePlugin* mPlugin = nullptr;
+  
 };
