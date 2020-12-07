@@ -1,0 +1,483 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		B34D5CAC24309CAA009B7CD9 /* pi_mac.js in CopyFiles */ = {isa = PBXBuildFile; fileRef = B34D5CAB24309C5E009B7CD9 /* pi_mac.js */; };
+		B38C4D7623C4DB88003CA800 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FAE515DC215238E400FAF824 /* main.cpp */; };
+		B38F465123C4BE56002CC72A /* RtMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B38F465023C4BE56002CC72A /* RtMidi.cpp */; };
+		B3B7A1AA2431FE6800F0DEAC /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = B39BB35C242525A3002D4BD9 /* manifest.json */; };
+		B3B8068A23E1D9A60065152F /* midibutton in CopyFiles */ = {isa = PBXBuildFile; fileRef = FABD3D182151193300D30B0C /* midibutton */; };
+		B3B8068C23E1D9CB0065152F /* index.html in CopyFiles */ = {isa = PBXBuildFile; fileRef = B3B8068523E1D9570065152F /* index.html */; };
+		B3DEB71023E8A4BF007FFFF6 /* base64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */; };
+		B3E0518423C4E3100077DB3F /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */; };
+		B3E0518523C4E3170077DB3F /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3E0518223C4E1AE0077DB3F /* CoreAudio.framework */; };
+		B3FC1A7223C4E42000069391 /* StreamDeckMidiButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */; };
+		FA7455FE215E788C000F47D3 /* ESDLocalizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA7455FA215E788C000F47D3 /* ESDLocalizer.cpp */; };
+		FA7455FF215E788C000F47D3 /* ESDUtilitiesMac.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA7455FC215E788C000F47D3 /* ESDUtilitiesMac.cpp */; };
+		FA87319C2151321900B8F323 /* ESDConnectionManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = FA8731992151321900B8F323 /* ESDConnectionManager.cpp */; };
+		FA8731A82152302900B8F323 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA8731A72152302900B8F323 /* CoreFoundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		B3B8068B23E1D9AC0065152F /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "/Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector";
+			dstSubfolderSpec = 0;
+			files = (
+				B3B8068C23E1D9CB0065152F /* index.html in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B3C001062429331B00FDCD67 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin/propertyinspector/js";
+			dstSubfolderSpec = 0;
+			files = (
+				B34D5CAC24309CAA009B7CD9 /* pi_mac.js in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FABD3D162151193300D30B0C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 12;
+			dstPath = "/Users/tomkelly/Library/Application Support/com.elgato.StreamDeck/Plugins/co.uk.clarionmusic.midibutton.sdPlugin";
+			dstSubfolderSpec = 0;
+			files = (
+				B3B7A1AA2431FE6800F0DEAC /* manifest.json in CopyFiles */,
+				B3B8068A23E1D9A60065152F /* midibutton in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		B34D5CAB24309C5E009B7CD9 /* pi_mac.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi_mac.js; sourceTree = "<group>"; };
+		B38F464F23C4BE56002CC72A /* RtMidi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RtMidi.h; path = ../RtMidi.h; sourceTree = "<group>"; };
+		B38F465023C4BE56002CC72A /* RtMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = RtMidi.cpp; path = ../RtMidi.cpp; sourceTree = "<group>"; };
+		B39BB35B242525A3002D4BD9 /* en.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = en.json; sourceTree = "<group>"; };
+		B39BB35C242525A3002D4BD9 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
+		B3B8067C23E1D9570065152F /* midibuttonmmc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonmmc@2x.png"; sourceTree = "<group>"; };
+		B3B8067D23E1D9570065152F /* midibuttonmmc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonmmc.png; sourceTree = "<group>"; };
+		B3B8067E23E1D9570065152F /* midibuttoncc@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttoncc@2x.png"; sourceTree = "<group>"; };
+		B3B8067F23E1D9570065152F /* category-midibutton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton.png"; sourceTree = "<group>"; };
+		B3B8068023E1D9570065152F /* midibuttoncc.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttoncc.png; sourceTree = "<group>"; };
+		B3B8068123E1D9570065152F /* midibuttonnote.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = midibuttonnote.png; sourceTree = "<group>"; };
+		B3B8068223E1D9570065152F /* midibuttonnote@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "midibuttonnote@2x.png"; sourceTree = "<group>"; };
+		B3B8068323E1D9570065152F /* category-midibutton@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "category-midibutton@2x.png"; sourceTree = "<group>"; };
+		B3B8068523E1D9570065152F /* index.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; path = index.html; sourceTree = "<group>"; };
+		B3B8068723E1D9570065152F /* sdpi.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = sdpi.css; sourceTree = "<group>"; };
+		B3B8068923E1D9570065152F /* common.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = common.js; sourceTree = "<group>"; };
+		B3C470802433761F00E79A77 /* pi_win.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = pi_win.js; sourceTree = "<group>"; };
+		B3DB72BF2559D687002A7FB5 /* timer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = timer.h; sourceTree = "<group>"; };
+		B3DEB70E23E8A4B8007FFFF6 /* base64.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = base64.h; path = ../base64.h; sourceTree = "<group>"; };
+		B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = base64.cpp; path = ../base64.cpp; sourceTree = "<group>"; };
+		B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = System/Library/Frameworks/CoreMIDI.framework; sourceTree = SDKROOT; };
+		B3E0518223C4E1AE0077DB3F /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = System/Library/Frameworks/CoreAudio.framework; sourceTree = SDKROOT; };
+		B3E742C42559831A00C9FFD6 /* event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = event.h; sourceTree = "<group>"; };
+		FA7455FA215E788C000F47D3 /* ESDLocalizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ESDLocalizer.cpp; sourceTree = "<group>"; };
+		FA7455FB215E788C000F47D3 /* ESDLocalizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESDLocalizer.h; sourceTree = "<group>"; };
+		FA7455FC215E788C000F47D3 /* ESDUtilitiesMac.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ESDUtilitiesMac.cpp; sourceTree = "<group>"; };
+		FA7455FD215E788C000F47D3 /* ESDUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESDUtilities.h; sourceTree = "<group>"; };
+		FA8731992151321900B8F323 /* ESDConnectionManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ESDConnectionManager.cpp; sourceTree = "<group>"; };
+		FA87319A2151321900B8F323 /* ESDConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESDConnectionManager.h; sourceTree = "<group>"; };
+		FA87319B2151321900B8F323 /* ESDBasePlugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESDBasePlugin.h; sourceTree = "<group>"; };
+		FA87319D2151378300B8F323 /* StreamDeckMidiButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StreamDeckMidiButton.h; path = ../StreamDeckMidiButton.h; sourceTree = "<group>"; };
+		FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StreamDeckMidiButton.cpp; path = ../StreamDeckMidiButton.cpp; sourceTree = "<group>"; };
+		FA8731A02151397700B8F323 /* EPLJSONUtils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EPLJSONUtils.h; sourceTree = "<group>"; };
+		FA8731A72152302900B8F323 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		FABD3D182151193300D30B0C /* midibutton */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = midibutton; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAE515DC215238E400FAF824 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		FAF9B00721511B61007E00F8 /* pch.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = pch.h; sourceTree = "<group>"; };
+		FAF9B00E21511D3E007E00F8 /* ESDSDKDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ESDSDKDefines.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FABD3D152151193300D30B0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				B3E0518523C4E3170077DB3F /* CoreAudio.framework in Frameworks */,
+				B3E0518423C4E3100077DB3F /* CoreMIDI.framework in Frameworks */,
+				FA8731A82152302900B8F323 /* CoreFoundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		B3B8067B23E1D9570065152F /* co.uk.clarionmusic.midibutton.sdPlugin */ = {
+			isa = PBXGroup;
+			children = (
+				B3B8067C23E1D9570065152F /* midibuttonmmc@2x.png */,
+				B3B8067D23E1D9570065152F /* midibuttonmmc.png */,
+				B39BB35B242525A3002D4BD9 /* en.json */,
+				B39BB35C242525A3002D4BD9 /* manifest.json */,
+				B3B8067E23E1D9570065152F /* midibuttoncc@2x.png */,
+				B3B8067F23E1D9570065152F /* category-midibutton.png */,
+				B3B8068023E1D9570065152F /* midibuttoncc.png */,
+				B3B8068123E1D9570065152F /* midibuttonnote.png */,
+				B3B8068223E1D9570065152F /* midibuttonnote@2x.png */,
+				B3B8068323E1D9570065152F /* category-midibutton@2x.png */,
+				B3B8068423E1D9570065152F /* propertyinspector */,
+			);
+			name = co.uk.clarionmusic.midibutton.sdPlugin;
+			path = ../../co.uk.clarionmusic.midibutton.sdPlugin;
+			sourceTree = "<group>";
+		};
+		B3B8068423E1D9570065152F /* propertyinspector */ = {
+			isa = PBXGroup;
+			children = (
+				B3B8068523E1D9570065152F /* index.html */,
+				B3B8068623E1D9570065152F /* css */,
+				B3B8068823E1D9570065152F /* js */,
+			);
+			path = propertyinspector;
+			sourceTree = "<group>";
+		};
+		B3B8068623E1D9570065152F /* css */ = {
+			isa = PBXGroup;
+			children = (
+				B3B8068723E1D9570065152F /* sdpi.css */,
+			);
+			path = css;
+			sourceTree = "<group>";
+		};
+		B3B8068823E1D9570065152F /* js */ = {
+			isa = PBXGroup;
+			children = (
+				B3B8068923E1D9570065152F /* common.js */,
+				B34D5CAB24309C5E009B7CD9 /* pi_mac.js */,
+				B3C470802433761F00E79A77 /* pi_win.js */,
+			);
+			path = js;
+			sourceTree = "<group>";
+		};
+		FA8731A62152302900B8F323 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B3E0518223C4E1AE0077DB3F /* CoreAudio.framework */,
+				B3E0518023C4E1A50077DB3F /* CoreMIDI.framework */,
+				FA8731A72152302900B8F323 /* CoreFoundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FABD3D0F2151193300D30B0C = {
+			isa = PBXGroup;
+			children = (
+				B3B8067B23E1D9570065152F /* co.uk.clarionmusic.midibutton.sdPlugin */,
+				FAF9B00721511B61007E00F8 /* pch.h */,
+				FA87319D2151378300B8F323 /* StreamDeckMidiButton.h */,
+				FA87319E2151378300B8F323 /* StreamDeckMidiButton.cpp */,
+				B38F465023C4BE56002CC72A /* RtMidi.cpp */,
+				B3E742C42559831A00C9FFD6 /* event.h */,
+				B38F464F23C4BE56002CC72A /* RtMidi.h */,
+				B3DB72BF2559D687002A7FB5 /* timer.h */,
+				B3DEB70F23E8A4B9007FFFF6 /* base64.cpp */,
+				B3DEB70E23E8A4B8007FFFF6 /* base64.h */,
+				FAF9B00921511D3E007E00F8 /* Common */,
+				FABD3D192151193300D30B0C /* Products */,
+				FA8731A62152302900B8F323 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		FABD3D192151193300D30B0C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FABD3D182151193300D30B0C /* midibutton */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		FAF9B00921511D3E007E00F8 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				FAE515DC215238E400FAF824 /* main.cpp */,
+				FAF9B00E21511D3E007E00F8 /* ESDSDKDefines.h */,
+				FA87319B2151321900B8F323 /* ESDBasePlugin.h */,
+				FA87319A2151321900B8F323 /* ESDConnectionManager.h */,
+				FA8731992151321900B8F323 /* ESDConnectionManager.cpp */,
+				FA8731A02151397700B8F323 /* EPLJSONUtils.h */,
+				FA7455FB215E788C000F47D3 /* ESDLocalizer.h */,
+				FA7455FA215E788C000F47D3 /* ESDLocalizer.cpp */,
+				FA7455FD215E788C000F47D3 /* ESDUtilities.h */,
+				FA7455FC215E788C000F47D3 /* ESDUtilitiesMac.cpp */,
+			);
+			name = Common;
+			path = ../Common;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FABD3D172151193300D30B0C /* midibutton */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FABD3D1F2151193300D30B0C /* Build configuration list for PBXNativeTarget "midibutton" */;
+			buildPhases = (
+				FABD3D142151193300D30B0C /* Sources */,
+				FABD3D152151193300D30B0C /* Frameworks */,
+				FABD3D162151193300D30B0C /* CopyFiles */,
+				B3B8068B23E1D9AC0065152F /* CopyFiles */,
+				B3C001062429331B00FDCD67 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = midibutton;
+			productName = com.elgato.cpu;
+			productReference = FABD3D182151193300D30B0C /* midibutton */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FABD3D102151193300D30B0C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1000;
+				ORGANIZATIONNAME = "Clarion Music";
+				TargetAttributes = {
+					FABD3D172151193300D30B0C = {
+						CreatedOnToolsVersion = 10.0;
+					};
+				};
+			};
+			buildConfigurationList = FABD3D132151193300D30B0C /* Build configuration list for PBXProject "midibutton" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = FABD3D0F2151193300D30B0C;
+			productRefGroup = FABD3D192151193300D30B0C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FABD3D172151193300D30B0C /* midibutton */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FABD3D142151193300D30B0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA87319C2151321900B8F323 /* ESDConnectionManager.cpp in Sources */,
+				B3DEB71023E8A4BF007FFFF6 /* base64.cpp in Sources */,
+				B38F465123C4BE56002CC72A /* RtMidi.cpp in Sources */,
+				FA7455FE215E788C000F47D3 /* ESDLocalizer.cpp in Sources */,
+				B3FC1A7223C4E42000069391 /* StreamDeckMidiButton.cpp in Sources */,
+				B38C4D7623C4DB88003CA800 /* main.cpp in Sources */,
+				FA7455FF215E788C000F47D3 /* ESDUtilitiesMac.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		FABD3D1D2151193300D30B0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = pch.h;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					D__MACOSX_CORE,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"../Vendor/asio/**",
+					"../Vendor/websocketpp/**",
+					"../Vendor/json/**",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		FABD3D1E2151193300D30B0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = NO;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = pch.h;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"../Vendor/asio/**",
+					"../Vendor/websocketpp/**",
+					"../Vendor/json/**",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FABD3D202151193300D30B0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+					D__MACOSX_CORE,
+					"RTMIDI17_HEADER_ONLY=1",
+					"RTMIDI17_COREAUDIO=1",
+				);
+				HEADER_SEARCH_PATHS = (
+					"../Vendor/asio/**",
+					"../Vendor/websocketpp/**",
+					"../include/**",
+					"../Vendor/json/**",
+				);
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "";
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Debug;
+		};
+		FABD3D212151193300D30B0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
+				CODE_SIGN_STYLE = Automatic;
+				HEADER_SEARCH_PATHS = (
+					"../Vendor/asio/**",
+					"../Vendor/websocketpp/**",
+					"../include/**",
+					"../Vendor/json/**",
+				);
+				LIBRARY_SEARCH_PATHS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SYSTEM_HEADER_SEARCH_PATHS = "";
+				USER_HEADER_SEARCH_PATHS = "";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		FABD3D132151193300D30B0C /* Build configuration list for PBXProject "midibutton" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FABD3D1D2151193300D30B0C /* Debug */,
+				FABD3D1E2151193300D30B0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FABD3D1F2151193300D30B0C /* Build configuration list for PBXNativeTarget "midibutton" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FABD3D202151193300D30B0C /* Debug */,
+				FABD3D212151193300D30B0C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FABD3D102151193300D30B0C /* Project object */;
+}
