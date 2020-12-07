@@ -904,6 +904,7 @@ void StreamDeckMidiButton::KeyDownForAction(const std::string& inAction, const s
             {
                 case 0: case 1://single CC value, or momentary without fade
                     midiMessageMutex.lock();
+                    midiMessage.clear();
                     midiMessage.push_back(storedButtonSettings[inContext].statusByte);
                     midiMessage.push_back(storedButtonSettings[inContext].dataByte1);
                     midiMessage.push_back(storedButtonSettings[inContext].dataByte2);
