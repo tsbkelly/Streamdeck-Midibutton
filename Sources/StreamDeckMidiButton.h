@@ -19,7 +19,9 @@
 #include "timer.h" //written by Martin Vorbrodt - https://vorbrodt.blog/
 #include <mutex>
 #include <fstream>
+#if defined (__APPLE__)
 #include <CoreServices/CoreServices.h>
+#endif
 
 #define DEFAULT_PORT_NAME "Streamdeck MIDI"
 

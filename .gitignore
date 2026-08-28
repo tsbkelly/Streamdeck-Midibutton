@@ -5,3 +5,4 @@ Sources/.DS_Store
 Sources/macOS/.DS_Store
 Sources/Vendor/.DS_Store
 Sources/Vendor/websocketpp/.DS_Store
+build/

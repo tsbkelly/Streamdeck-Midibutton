@@ -108,7 +108,7 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
                     Message("bool MidiButton::InitialiseMidi(Direction OUT): creating a new midiOut");
                     midiOut = new rtmidi::midi_out();
                 }
-#if defined (__APPLE__)
+#if defined (__APPLE__) || defined (__linux__)
                 if (mGlobalSettings->useVirtualPort)
                 {
                     DebugMessage("bool MidiButton::InitialiseMidi(Direction OUT): opening virtual OUTPUT port called: " + mGlobalSettings->portName);
@@ -147,7 +147,7 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
                             return false;
                         }
                     }
-#if defined (__APPLE__)
+#if defined (__APPLE__) || defined (__linux__)
                 }
 #endif
             }
@@ -177,7 +177,7 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
                 
                 // don't ignore sysex, timing or active sensing messages
                 midiIn->ignore_types(false, false, false);
-#if defined (__APPLE__)
+#if defined (__APPLE__) || defined (__linux__)
                 if (mGlobalSettings->useVirtualPort)
                 {
                     DebugMessage("bool MidiButton::InitialiseMidi(Direction IN): opening virtual INPUT port called: " + mGlobalSettings->portName);
@@ -229,7 +229,7 @@ bool StreamDeckMidiButton::InitialiseMidi(Direction direction)
             }
             midiUpdateMutex.unlock();
             return true;
-#if defined (__APPLE__)
+#if defined (__APPLE__) || defined (__linux__)
         }
 #endif
     }
